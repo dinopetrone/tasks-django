@@ -18,8 +18,8 @@ class ProjectResource(ModelResource):
             'assigned_to': ALL,
         }
         always_return_data = True
-        detail_allowed_methods = ['get', 'post', 'patch', 'put']
-        list_allowed_methods = ['get', 'patch', 'post', 'put']
+        detail_allowed_methods = ['get', 'post', 'patch', 'put', 'delete']
+        list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
         authentication = Authentication()
         authorization = Authorization()
 
@@ -40,7 +40,7 @@ class TaskResource(ModelResource):
             'assigned_to': ALL
         }
         always_return_data = True
-        detail_allowed_methods = ['get', 'post', 'patch', 'put']
-        list_allowed_methods = ['get', 'patch', 'post', 'put']
+        detail_allowed_methods = ['get', 'post', 'patch', 'put', 'delete']
+        list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
         authentication = Authentication()
         authorization = Authorization()

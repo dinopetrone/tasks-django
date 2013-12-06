@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 STATUS_LIST = (
                (0, 'backlog'),
@@ -8,7 +9,6 @@ STATUS_LIST = (
                (3, 'completed'),
                (4, 'archived'),
                )
-
 
 LOE = (
     (0, 'low'),
@@ -34,3 +34,13 @@ class Task(models.Model):
     task_type = models.IntegerField(choices=TYPE, default=0)
     assigned_to = models.ForeignKey(User, blank=True, null=True)
 
+# class TaskUser(AbstractBaseUser, PermissionsMixin):
+#     username = models.CharField(max_length=254, unique=True)
+#     is_admin = models.BooleanField(default=False)
+#     is_active = models.BooleanField(default=True)
+
+#     def __unicode__(self):
+#         return self.username
+
+#     USERNAME_FIELD = 'username'
+#     REQUIRED_FIELDS = []
