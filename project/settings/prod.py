@@ -1,0 +1,84 @@
+from os.path import join, normpath
+from os import getenv
+import dj_database_url
+from base import *
+
+
+########## DEBUG CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
+DEBUG = True
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#template-debug
+TEMPLATE_DEBUG = DEBUG
+########## END DEBUG CONFIGURATION
+
+
+########## EMAIL CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+########## END EMAIL CONFIGURATION
+
+
+########## DATABASE CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
+DATABASES = {
+    'default': dj_database_url.config(default='postgres://localhost'),
+}
+
+DATABASES['default']['ENGINE'] = 'django_postgrespool'
+
+SOUTH_DATABASE_ADAPTERS = {
+    'default': 'south.db.postgresql_psycopg2'
+}
+
+DATABASE_POOL_ARGS = {
+    'max_overflow': 7,
+    'pool_size': 7,
+    'recycle': 300,
+}
+
+# REDIS_HOST = getenv('REDISTOGO_URL', 'redis://localhost:6379')
+########## END DATABASE CONFIGURATION
+
+
+########## CACHE CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#caches
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+########## END CACHE CONFIGURATION
+
+
+########## TOOLBAR CONFIGURATION
+# See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
+INSTALLED_APPS += (
+    'gunicorn',
+    'storages',
+)
+
+# See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
+INTERNAL_IPS = ('127.0.0.1',)
+
+
+
+# AWS settings
+AWS_ACCESS_KEY_ID = 'awspublickey'
+AWS_SECRET_ACCESS_KEY = 'awssecretkey'
+AWS_QUERYSTRING_AUTH = False
+AWS_BUCKET_NAME = AWS_STORAGE_BUCKET_NAME = 'tasks-app'
+STATICFILES_STORAGE = 'utils.storage.OptimizedS3BotoStorage'
+DEFAULT_FILE_STORAGE = "utils.storage.MediaRootS3BotoStorage"
+ASSET_PROTOCOL = 'https' if USE_HTTPS_FOR_ASSETS else 'http'
+STATIC_URL = '{}://{}.s3.amazonaws.com/'.format(ASSET_PROTOCOL, AWS_STORAGE_BUCKET_NAME)
+MEDIA_URL = '{}://{}.s3.amazonaws.com/uploads/'.format(ASSET_PROTOCOL, AWS_STORAGE_BUCKET_NAME)
+ASSET_VERSION = getenv("ASSET_VERSION")
+if ASSET_VERSION:
+    AWS_LOCATION = '%s/' % ASSET_VERSION # set path of assets in s3 bucket, note this is '' by default
+    STATIC_URL += AWS_LOCATION
+
+
+# ALLOWED_HOSTS += ('example.com',)
+
+

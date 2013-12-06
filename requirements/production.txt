@@ -1,0 +1,7 @@
+-r base.txt
+
+gevent==0.13.8
+gunicorn==18.0
+python-memcached==1.53
+django-postgrespool==0.2.4
+newrelic==1.10.0.28
