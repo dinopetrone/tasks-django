@@ -11,11 +11,11 @@ STATUS_LIST = (
 
 
 class Project(models.Model):
-    title = models.CharField(max_length = 200)
+    label = models.CharField(max_length = 200)
 
 
 class Task(models.Model):
-    title = models.CharField(max_length=256, blank=False)
+    label = models.CharField(max_length=256, blank=False)
     description = models.TextField(max_length=2000, blank=False)
     project = models.ForeignKey(Project)
     status = models.IntegerField(choices=STATUS_LIST, default=0)

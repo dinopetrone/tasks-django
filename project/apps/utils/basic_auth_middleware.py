@@ -2,6 +2,7 @@ import base64
 from django.http import HttpResponse
 from django.middleware.common import CommonMiddleware
 from django.conf import settings
+from django import http
 
 import os
 
@@ -24,9 +25,20 @@ BASIC_AUTH_PASS = 'password'
                 authtype, auth = request.META['HTTP_AUTHORIZATION'].split(' ')
                 auth = base64.b64decode(auth)
                 username, password = auth.split(':')
-                if (username == getattr(settings, 'BASIC_AUTH_USER', None) 
+                if (username == getattr(settings, 'BASIC_AUTH_USER', None)
                     and password == getattr(settings, 'BASIC_AUTH_PASS', None)):
                     return
             r = HttpResponse("Auth Required", status = 401)
             r['WWW-Authenticate'] = 'Basic realm="bat"'
             return r
+
+class XHRMiddleware(CommonMiddleware):
+
+    def process_request(self, request):
+        if 'HTTP_ACCESS_CONTROL_REQUEST_METHOD' in request.META:
+            response = http.HttpResponse()
+            response['Access-Control-Allow-Origin']  = '*'
+            response['Access-Control-Allow-Methods'] = '*'
+            response['Access-Control-Allow-Headers'] = '*'
+            response['Access-Control-Allow-Credentials'] = '*'
+            return response

@@ -210,6 +210,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'utils.xhr_middleware.XHRMiddleware'
 )
 ########## END MIDDLEWARE CONFIGURATION
 

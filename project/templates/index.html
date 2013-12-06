@@ -1,16 +1,25 @@
-
-{% extends 'base.html' %}
-
-{% block header %}
-{% include "partials/header.html" %}
-{% endblock %}
-
-{% block content %}
-  <!-- put content here -->
-{% endblock %}
-
-{% block footer %}
-{% include "partials/footer.html" %}
-{% endblock %}
-
-
+<!DOCTYPE HTML>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8">
+        <title>default title</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" media="all" href="static/css/styles.css"/>
+        <script type="text/javascript" src="static/js/vendor/require.js"></script>
+        <script type="text/javascript">
+        require(['static/js/common'], function (common) {
+            require(['main']);
+        });
+        </script>
+    </head>
+    <body>
+        <div id="modal">
+            <!-- <div class="view"></div> -->
+        </div>
+        <div id="window">
+            <div id="sidebar"></div>
+            <div id="project-detail"></div>
+        </div>
+    </body>
+</html>

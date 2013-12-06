@@ -1,77 +1,64 @@
 require.config({
+  baseUrl: 'static/js',
+
   paths : {
-    'vendor': 'static/js/vendor',
-    'jquery': 'static/js/vendor/jquery'
+    'marionette': 'vendor/backbone/marionette',
+    'hbs': 'vendor/require/hbs/hbs',
+
+    // used for hbs plugin, name is remapped to
+    // lowercase as well for convenience. The optimizer
+    // dies, even with the map in place, if we do this
+    // any other way.
+    //
+    // see:
+    // https://github.com/SlexAxton/require-handlebars-plugin/issues/144
+    'Handlebars': 'vendor/handlebars/handlebars'
   },
 
    packages: [
 
         {
-            location: 'static/js/',
-            name: 'tasks-django'
+            location: 'app',
+            name: 'app'
         },
 
         {
-            location: 'static/js/vendor/built',
-            name: 'built'
-        },
-
-        {
-            location: 'static/js/vendor/bootstrap',
-            name: 'bootstrap'
-        },
-
-        {
-            location: 'static/js/vendor/underscore',
-            name: 'underscore',
-            main: 'lodash'
-        },
-
-        {
-            location: 'static/js/vendor/handlebars',
-            name: 'handlebars',
-            main: 'handlebars'
-        },
-
-        {
-            location: 'static/js/vendor/backbone',
+            location: 'vendor/backbone',
             name: 'backbone',
-            main: 'backbone'
+            main:'backbone'
         },
 
         {
-            location: 'static/js/vendor/require',
-            name: 'require'
-        }
+            location: 'vendor/jquery',
+            name: 'jquery',
+            main:'jquery'
+        },
 
+        {
+            location: 'vendor/built',
+            name: 'built'
+        }
     ],
 
     map: {
         '*': {
-            // auf references
-            'marionette': 'backbone/marionette',
-            'modernizr': 'vendor/modernizr/modernizr',
+            'underscore': 'vendor/underscore/lodash',
+            'handlebars': 'Handlebars'
+        },
 
-            // hbs names
-            'Handlebars': 'handlebars',
-            'hbs': 'require/hbs/hbs',
-            'hbs/underscore': 'underscore',
-            'hbs/i18nprecompile' : 'require/hbs/i18nprecompile',
-            'hbs/json2' : 'require/hbs/json2',
-
-
-            // logging
-            'logging': 'auf/utils/logging'
+        'hbs':{
+            'i18nprecompile' : 'vendor/require/hbs/i18nprecompile',
+            'json2' : 'vendor/require/hbs/json2',
+            'underscore': 'vendor/require/hbs/underscore'
         }
     },
-
 
   hbs: {
         templateExtension : 'html',
         // if disableI18n is `true` it won't load locales and the i18n helper
         // won't work as well.
         disableI18n : true,
-        helperDirectory: 'static/js/templates/helpers/'
+        helperDirectory: 'app/shared/hbs'
   },
 
   shim : {
@@ -86,18 +73,10 @@ require.config({
       'exports' : 'Stickit'
     },
 
-    'backbone/validation' : {
-      'deps' : ['backbone'],
-      'exports' : 'Validation'
-    },
-
-    'backbone/marionette': {
+    'marionette': {
         'deps': ['jquery', 'underscore', 'backbone'],
         'exports': 'Marionette'
-    },
-
-    'vendor/modernizr/modernizr': {
-        'exports': 'Modernizr'
-    },
+    }
   }
-})
+
+});
