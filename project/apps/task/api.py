@@ -1,5 +1,6 @@
 import string
 import random
+import json
 from tastypie.resources import ModelResource, Resource, ALL, ALL_WITH_RELATIONS
 from tastypie import fields
 from tastypie.serializers import Serializer
@@ -48,13 +49,30 @@ class TaskResource(ModelResource):
         authorization = Authorization()
 
 
+class TokenObject(object):
+    def __init__(self, initial=None):
+        self.__dict__['_data'] = {}
+
+        if hasattr(initial, 'items'):
+            self.__dict__['_data'] = initial
+
+    def __getattr__(self, name):
+        return self._data.get(name, None)
+
+    def __setattr__(self, name, value):
+        self.__dict__['_data'][name] = value
+
+    def to_dict(self):
+        return self._data
+
 class TokenResource(Resource):
-    token = fields.CharField(attribute='title', null=True)
+    token = fields.CharField(attribute='token', null=True)
     class Meta:
         include_resource_uri  = False
         resource_name = 'token'
         serializer = Serializer(["json"])
-    def obj_get(self, bundle, pk):
+    def obj_get(self, bundle, **kwargs):
+        pk = kwargs['pk']
         try:
             username = pk.split('/')[0]
             password = pk.split('/')[1]
@@ -63,7 +81,7 @@ class TokenResource(Resource):
         except TaskUser.DoesNotExist:
             return 'false'
         if is_valid:
-            token = ''.join(random.choice(string.ascii_lowercase + string.digits) for x in range(20))
+            token = ''.join(random.choice(string.lowercase) for i in range(30))
             user.token = token
             user.save();
-            return token
+            return TokenObject({'token':token})
