@@ -63,7 +63,7 @@ class TokenResource(Resource):
         except TaskUser.DoesNotExist:
             return 'false'
         if is_valid:
-            key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(20))
-            key.lower()
-            print(key)
-            return key
+            token = ''.join(random.choice(string.ascii_lowercase + string.digits) for x in range(20))
+            user.token = token
+            user.save();
+            return token
