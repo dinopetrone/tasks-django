@@ -78,7 +78,8 @@ class TaskUser(AbstractBaseUser, PermissionsMixin):
 
 class Project(models.Model):
     label = models.CharField(max_length = 200)
-    users = models.ManyToManyField(TaskUser)
+    users = models.ManyToManyField(TaskUser, blank=True, null=True)
+    organization = models.ForeignKey(Organization)
 
 
 class Task(models.Model):

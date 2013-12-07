@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
-from .models import TaskUser, Organization
+from .models import TaskUser, Organization, Project, Task
 from .forms import TaskUserChangeForm, TaskUserCreationForm
 
 class TaskUserAdmin(UserAdmin):
@@ -26,10 +26,9 @@ class TaskUserAdmin(UserAdmin):
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
 
-class OrganizationAdmin(admin.ModelAdmin):
-    pass
-
 
 
 admin.site.register(TaskUser, TaskUserAdmin)
-admin.site.register(Organization, OrganizationAdmin)
+admin.site.register(Organization, admin.ModelAdmin)
+admin.site.register(Project, admin.ModelAdmin)
+admin.site.register(Task, admin.ModelAdmin)

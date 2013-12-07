@@ -6,7 +6,7 @@ from tastypie import fields
 from tastypie.serializers import Serializer
 from tastypie.authorization import Authorization
 from tastypie.authentication import Authentication
-from task.models import Task, Project, TaskUser
+from task.models import Task, Project, TaskUser, Organization
 
 
 # class TaskAuthorization(Authorization):
@@ -28,6 +28,7 @@ class TaskUserResource(ModelResource):
 class ProjectResource(ModelResource):
     users = fields.ToManyField('task.api.TaskUserResource', 'users', null=True)
     class Meta:
+        queryset = Project.objects.all()
         resource_name = 'project'
         serializer = Serializer(["json"])
         filtering = {
@@ -41,8 +42,25 @@ class ProjectResource(ModelResource):
         list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
         authentication = Authentication()
         authorization = Authorization()
+    def hydrate(self, bundle):
+        project = bundle.obj
+        token = bundle.request.GET['token']
+        # token = 'cxtmmrgxoeanpaxjsnxwiskdwieatx'
+        user = TaskUser.objects.get(token=token)
+        project.organization = user.organization
+        project.save()
+        project.users.add(user)
+        return bundle
+
     def get_object_list(self, request):
-        return Project.objects.all()
+        token = request.GET.get('token', False)
+        # token = 'cxtmmrgxoeanpaxjsnxwiskdwieatx'
+        user = TaskUser.objects.get(token=token)
+        if request.GET.get('all', False):
+            return Project.objects.filter(organization=user.organization)
+        else:
+            return Project.objects.filter(users=user)
+
 
 
 class TaskResource(ModelResource):
