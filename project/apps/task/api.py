@@ -67,11 +67,14 @@ class TokenObject(object):
 
 class TokenResource(Resource):
     token = fields.CharField(attribute='token', null=True)
+    ok = fields.BooleanField(attribute='ok')
+
     class Meta:
         include_resource_uri  = False
         resource_name = 'token'
         serializer = Serializer(["json"])
     def obj_get(self, bundle, **kwargs):
+        tokenResponse = TokenObject({'ok':False})
         pk = kwargs['pk']
         try:
             username = pk.split('/')[0]
@@ -79,9 +82,11 @@ class TokenResource(Resource):
             user = TaskUser.objects.get(username=username)
             is_valid = user.check_password(password)
         except TaskUser.DoesNotExist:
-            return 'false'
+            return tokenResponse
         if is_valid:
             token = ''.join(random.choice(string.lowercase) for i in range(30))
             user.token = token
+            tokenResponse.token = token
+            tokenResponse.ok = True
             user.save();
-            return TokenObject({'token':token})
+            return tokenResponse
