@@ -46,6 +46,10 @@ class TaskUserManager(BaseUserManager):
         return self._create_user(email, password, True, True,
                                  **extra_fields)
 
+class Organization(models.Model):
+    label = models.CharField(max_length = 200)
+    def __unicode__(self):
+        return self.label
 
 
 class TaskUser(AbstractBaseUser, PermissionsMixin):
@@ -58,12 +62,12 @@ class TaskUser(AbstractBaseUser, PermissionsMixin):
         help_text='Designates whether the user can log into this admin site.')
     is_active = models.BooleanField('active', default=True,
         help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.')
-    # date_joined = models.DateTimeField('date joined', default=timezone.now)
 
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    organization = models.ForeignKey(Organization, blank=True, null=True)
 
-    def __unicode_self(self):
+    def __unicode__(self):
         return self.username
 
     USERNAME_FIELD = 'username'
@@ -72,10 +76,9 @@ class TaskUser(AbstractBaseUser, PermissionsMixin):
 
 
 
-
-
 class Project(models.Model):
     label = models.CharField(max_length = 200)
+    users = models.ManyToManyField(TaskUser)
 
 
 class Task(models.Model):

@@ -9,22 +9,40 @@ from tastypie.authentication import Authentication
 from task.models import Task, Project, TaskUser
 
 
+# class TaskAuthorization(Authorization):
+#     def read_list(self, object_list, bundle):
+#         token = bundle.request.GET['token']
+#         user = TaskUser.objects.get(token=token)
+#         # object_list = object_list
+#         return object_list
+
+
+class TaskUserResource(ModelResource):
+    class Meta:
+        queryset = TaskUser.objects.all()
+        filtering = {
+            'id': ALL,
+        }
+
 
 class ProjectResource(ModelResource):
+    users = fields.ToManyField('task.api.TaskUserResource', 'users', null=True)
     class Meta:
-        queryset = Project.objects.all()
         resource_name = 'project'
-        serializer = Serializer(["json", "jsonp"])
+        serializer = Serializer(["json"])
         filtering = {
             'id': ALL,
             'status': ALL,
             'assigned_to': ALL,
+            'users': ALL_WITH_RELATIONS,
         }
         always_return_data = True
         detail_allowed_methods = ['get', 'post', 'patch', 'put', 'delete']
         list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
         authentication = Authentication()
         authorization = Authorization()
+    def get_object_list(self, request):
+        return Project.objects.all()
 
 
 class TaskResource(ModelResource):
@@ -32,7 +50,7 @@ class TaskResource(ModelResource):
     class Meta:
         queryset = Task.objects.all()
         resource_name = 'task'
-        serializer = Serializer(["json", "jsonp"])
+        serializer = Serializer(["json"])
         filtering = {
             'label': ALL,
             'description': ALL,
