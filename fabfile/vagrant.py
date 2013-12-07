@@ -31,9 +31,9 @@ def env_test():
 @task
 def runall():
     local('touch nohup.out')
-    local('nohup fab vagrant.celery &')
-    local('nohup fab vagrant.celerybeat &')
-    local('nohup fab vagrant.css_watch &')
+    # local('nohup fab vagrant.celery &')
+    # local('nohup fab vagrant.celerybeat &')
+    # local('nohup fab vagrant.css_watch &')
     local('nohup fab vagrant.runserver &')
     local('tail -f nohup.out')
 

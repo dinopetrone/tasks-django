@@ -366,3 +366,6 @@ REQUIRE_EXCLUDE = ("build.txt",)
 # The execution environment in which to run r.js: node or rhino.
 REQUIRE_ENVIRONMENT = "node"
 ########## END REQUIRE CONFIGURATION
+
+
+AUTH_USER_MODEL = 'task.TaskUser'
