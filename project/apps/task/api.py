@@ -1,9 +1,11 @@
-from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
+import string
+import random
+from tastypie.resources import ModelResource, Resource, ALL, ALL_WITH_RELATIONS
 from tastypie import fields
-from task.models import Task, Project
 from tastypie.serializers import Serializer
 from tastypie.authorization import Authorization
 from tastypie.authentication import Authentication
+from task.models import Task, Project, TaskUser
 
 
 
@@ -44,3 +46,24 @@ class TaskResource(ModelResource):
         list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
         authentication = Authentication()
         authorization = Authorization()
+
+
+class TokenResource(Resource):
+    token = fields.CharField(attribute='title', null=True)
+    class Meta:
+        include_resource_uri  = False
+        resource_name = 'token'
+        serializer = Serializer(["json"])
+    def obj_get(self, bundle, pk):
+        try:
+            username = pk.split('/')[0]
+            password = pk.split('/')[1]
+            user = TaskUser.objects.get(username=username)
+            is_valid = user.check_password(password)
+        except TaskUser.DoesNotExist:
+            return 'false'
+        if is_valid:
+            key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(20))
+            key.lower()
+            print(key)
+            return key
