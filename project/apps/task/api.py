@@ -1,12 +1,13 @@
 import string
 import random
-import json
+
 from tastypie.resources import ModelResource, Resource, ALL, ALL_WITH_RELATIONS
 from tastypie import fields
 from tastypie.serializers import Serializer
 from tastypie.authorization import Authorization
 from tastypie.authentication import Authentication
-from task.models import Task, Project, TaskUser, Organization
+
+from task.models import Task, Project, TaskUser
 
 
 # class TaskAuthorization(Authorization):
@@ -55,10 +56,11 @@ class ProjectResource(ModelResource):
     def get_object_list(self, request):
         type, token = request.META.get('HTTP_AUTHORIZATION').split()
         user = TaskUser.objects.get(token=token)
+        objects = self._meta.queryset._clone()
         if request.GET.get('all', False):
-            return Project.objects.filter(organization=user.organization)
+            return objects.filter(organization=user.organization)
         else:
-            return Project.objects.filter(users=user)
+            return objects.filter(users=user)
 
 
 
@@ -82,6 +84,34 @@ class TaskResource(ModelResource):
         list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
         authentication = Authentication()
         authorization = Authorization()
+
+    def alter_deserialized_detail_data(self, request, data):
+        type, token = request.META.get('HTTP_AUTHORIZATION').split()
+        user = TaskUser.objects.get(token=token)
+        data['assigned_to'] = user.id
+        return data
+
+    def dehydrate(self, bundle):
+        task = bundle.obj
+        if task.status == 2:
+            type, token = bundle.request.META.get('HTTP_AUTHORIZATION').split()
+            user = TaskUser.objects.get(token=token)
+            task.assigned_to = user
+            task.save()
+        return bundle
+
+    def alter_detail_data_to_serialize(self, request, data):
+        task = data.data
+        task['project'] = task['project'].data['resource_uri']
+        return data
+
+    def alter_list_data_to_serialize(self, request, data):
+        objects = data['objects']
+        for obj in objects:
+            task = obj.data
+            task['project'] = task['project'].data['resource_uri']
+        return data
+
 
 
 class TokenObject(object):

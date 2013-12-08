@@ -5,10 +5,11 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 
 STATUS_LIST = (
                (0, 'backlog'),
-               (1, 'accepted'),
-               (2, 'in progress'),
-               (3, 'completed'),
-               (4, 'archived'),
+               (1, 'todo'),
+               (2, 'accepted'),
+               (3, 'in progress'),
+               (4, 'completed'),
+               (5, 'archived'),
                )
 
 LOE = (
