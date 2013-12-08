@@ -42,6 +42,7 @@ class ProjectResource(ModelResource):
         list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
         authentication = Authentication()
         authorization = Authorization()
+
     def dehydrate(self, bundle):
         project = bundle.obj
         type, token = bundle.request.META.get('HTTP_AUTHORIZATION').split()
