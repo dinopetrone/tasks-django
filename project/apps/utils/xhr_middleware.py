@@ -9,7 +9,8 @@ try:
 except AttributeError:
     XS_SHARING_ALLOWED_ORIGINS = '*'
     XS_SHARING_ALLOWED_METHODS = ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']
-    XS_SHARING_ALLOWED_HEADERS = ['Content-Type', '*']
+    XS_SHARING_ALLOWED_HEADERS = ['Content-Type', 'Authorization', '*']
+    XS_SHARING_ALLOWED_OPTIONS = ['*']
     XS_SHARING_ALLOWED_CREDENTIALS = 'true'
 
 
@@ -21,6 +22,7 @@ class XHRMiddleware(object):
             response['Access-Control-Allow-Origin']  = XS_SHARING_ALLOWED_ORIGINS
             response['Access-Control-Allow-Methods'] = ",".join( XS_SHARING_ALLOWED_METHODS )
             response['Access-Control-Allow-Headers'] = ",".join( XS_SHARING_ALLOWED_HEADERS )
+            response['Access-Control-Allow-Options'] = ",".join( XS_SHARING_ALLOWED_OPTIONS )
             response['Access-Control-Allow-Credentials'] = XS_SHARING_ALLOWED_CREDENTIALS
             return response
 
@@ -30,6 +32,7 @@ class XHRMiddleware(object):
         response['Access-Control-Allow-Origin']  = XS_SHARING_ALLOWED_ORIGINS
         response['Access-Control-Allow-Methods'] = ",".join( XS_SHARING_ALLOWED_METHODS )
         response['Access-Control-Allow-Headers'] = ",".join( XS_SHARING_ALLOWED_HEADERS )
+        response['Access-Control-Allow-Options'] = ",".join( XS_SHARING_ALLOWED_OPTIONS )
         response['Access-Control-Allow-Credentials'] = XS_SHARING_ALLOWED_CREDENTIALS
 
         return response

@@ -43,23 +43,25 @@ class ProjectResource(ModelResource):
         authentication = Authentication()
         authorization = Authorization()
     def hydrate(self, bundle):
-        project = bundle.obj
-        token = bundle.request.GET['token']
-        # token = 'cxtmmrgxoeanpaxjsnxwiskdwieatx'
-        user = TaskUser.objects.get(token=token)
-        project.organization = user.organization
-        project.save()
-        project.users.add(user)
+        # project = bundle.obj
+        # token = bundle.request.GET['token']
+        # # token = 'cxtmmrgxoeanpaxjsnxwiskdwieatx'
+        # user = TaskUser.objects.get(token=token)
+        # project.organization = user.organization
+        # project.save()
+        # project.users.add(user)
         return bundle
 
     def get_object_list(self, request):
-        token = request.GET.get('token', False)
-        # token = 'cxtmmrgxoeanpaxjsnxwiskdwieatx'
-        user = TaskUser.objects.get(token=token)
-        if request.GET.get('all', False):
-            return Project.objects.filter(organization=user.organization)
-        else:
-            return Project.objects.filter(users=user)
+        # token = request.GET.get('token', False)
+        # # token = 'cxtmmrgxoeanpaxjsnxwiskdwieatx'
+        # user = TaskUser.objects.get(token=token)
+        # if request.GET.get('all', False):
+        #     return Project.objects.filter(organization=user.organization)
+        # else:
+        #     return Project.objects.filter(users=user)
+        import pdb; pdb.set_trace()
+        return Project.objects.all()
 
 
 
