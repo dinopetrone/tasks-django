@@ -42,26 +42,22 @@ class ProjectResource(ModelResource):
         list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
         authentication = Authentication()
         authorization = Authorization()
-    def hydrate(self, bundle):
-        # project = bundle.obj
-        # token = bundle.request.GET['token']
-        # # token = 'cxtmmrgxoeanpaxjsnxwiskdwieatx'
-        # user = TaskUser.objects.get(token=token)
-        # project.organization = user.organization
-        # project.save()
-        # project.users.add(user)
+    def dehydrate(self, bundle):
+        project = bundle.obj
+        type, token = bundle.request.META.get('HTTP_AUTHORIZATION').split()
+        user = TaskUser.objects.get(token=token)
+        project.organization = user.organization
+        project.users.add(user)
+        project.save()
         return bundle
 
     def get_object_list(self, request):
-        # token = request.GET.get('token', False)
-        # # token = 'cxtmmrgxoeanpaxjsnxwiskdwieatx'
-        # user = TaskUser.objects.get(token=token)
-        # if request.GET.get('all', False):
-        #     return Project.objects.filter(organization=user.organization)
-        # else:
-        #     return Project.objects.filter(users=user)
-        import pdb; pdb.set_trace()
-        return Project.objects.all()
+        type, token = request.META.get('HTTP_AUTHORIZATION').split()
+        user = TaskUser.objects.get(token=token)
+        if request.GET.get('all', False):
+            return Project.objects.filter(organization=user.organization)
+        else:
+            return Project.objects.filter(users=user)
 
 
 
