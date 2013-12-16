@@ -18,6 +18,25 @@ from task.models import Task, Project, TaskUser
 #         return object_list
 
 
+class TaskUserDetailResource(ModelResource):
+    class Meta:
+        serializer = Serializer(["json"])
+        resource_name = 'user'
+        list_allowed_methods = ['get']
+    def get_object_list(self, request):
+        # type, token = request.META.get('HTTP_AUTHORIZATION').split()
+        token = 'iqzltkmurffxqduysbykhvvolosknr'
+        user = TaskUser.objects.filter(token=token)
+        return user
+
+    def dehydrate(self, bundle):
+        bundle.data['username'] = bundle.obj.username
+        bundle.data['first_name'] = bundle.obj.first_name
+        bundle.data['last_name'] = bundle.obj.last_name
+        bundle.data['organization'] = bundle.obj.organization
+        del bundle.data['resource_uri']
+        return bundle
+
 class TaskUserResource(ModelResource):
     class Meta:
         queryset = TaskUser.objects.all()

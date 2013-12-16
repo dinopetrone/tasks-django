@@ -5,8 +5,19 @@
         <title>default title</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script type="text/javascript" src="/static/js/libs/sock.js"></script>
         <script type="text/javascript">
-        window.location.href = 'http://localhost:8001/'
+        var sock = new SockJS('http://localhost:8888/echo');
+        sock.onopen = function() {
+           console.log('open');
+        };
+        sock.onmessage = function(e) {
+           console.log('message', e.data);
+        };
+        sock.onclose = function() {
+           console.log('close');
+        };
+        // window.location.href = 'http://localhost:8001/'
         </script>
     </head>
     <body>

@@ -14,12 +14,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     ## Networking
     config.vm.network :forwarded_port, guest: 8000, host: 8000 # local dev
+    config.vm.network :forwarded_port, guest: 8888, host: 8888 # local dev
     config.vm.network :forwarded_port, guest: 5432, host: 5432 # postgresql
-    
+
     config.ssh.forward_agent = true
     config.vm.synced_folder "cloudseed/current/srv/", "/srv/"
     config.vm.synced_folder "./", "/var/www/"
-    
+
 
     ## Install Saltstack GitFS requirements
     config.vm.provision :shell, :inline => "sudo apt-get update"
@@ -36,7 +37,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         salt.minion_pub = "cloudseed/current/vagrant/minion.pub"
         salt.seed_master = {minion: "cloudseed/current/vagrant/minion.pub"}
         salt.verbose = true
-        
+
         salt.install_type = "git"
         salt.install_args = "v0.17.0"
         salt.bootstrap_options = "-D -F"

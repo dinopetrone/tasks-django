@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.views.generic import TemplateView
 from tastypie.api import Api
 
-from task.api import TaskResource, ProjectResource, TokenResource
+from task.api import TaskResource, ProjectResource, TokenResource, TaskUserDetailResource
 
 admin.autodiscover()
 
@@ -12,6 +12,7 @@ v1_api = Api(api_name='v1')
 v1_api.register(TaskResource())
 v1_api.register(ProjectResource())
 v1_api.register(TokenResource())
+v1_api.register(TaskUserDetailResource())
 
 urlpatterns = patterns('',
     (r'^grappelli/', include('grappelli.urls')),
