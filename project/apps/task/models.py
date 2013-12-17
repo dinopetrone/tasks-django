@@ -1,7 +1,12 @@
+import json
 from django.utils import timezone
 from django.db import models
-# from django.contrib.auth.models import User
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.forms.models import model_to_dict
+
+import zmq
 
 STATUS_LIST = (
                (0, 'backlog'),
@@ -94,3 +99,37 @@ class Task(models.Model):
     task_type = models.IntegerField(choices=TYPE, default=0)
     assigned_to = models.ForeignKey(TaskUser, blank=True, null=True)
 
+
+
+@receiver(post_save, sender=Project)
+def notify_project_update(sender, instance, created, raw, **kwargs):
+    if created:
+        return
+    dic = model_to_dict(instance)
+    dic['organization_id'] = instance.organization.id
+    dic['project_id'] = instance.id
+    dic['type'] = 'project'
+    del dic['users']
+    model_json = json.dumps(dic)
+    c = zmq.Context()
+    s = c.socket(zmq.REQ)
+    ipc = 'ipc:///tmp/tasks_broker'
+    s.connect(ipc)
+    s.send(model_json)
+    s.recv()
+
+
+@receiver(post_save, sender=Task)
+def notify_task_update(sender, instance, created, raw, **kwargs):
+    if created:
+        return
+    dic = model_to_dict(instance)
+    dic['organization_id'] = instance.project.organization.id
+    dic['project_id'] = instance.project.id
+    model_json = json.dumps(dic)
+    c = zmq.Context()
+    s = c.socket(zmq.REQ)
+    ipc = 'ipc:///tmp/tasks_broker'
+    s.connect(ipc)
+    s.send(model_json)
+    s.recv()

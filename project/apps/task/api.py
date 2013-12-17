@@ -24,8 +24,7 @@ class TaskUserDetailResource(ModelResource):
         resource_name = 'user'
         list_allowed_methods = ['get']
     def get_object_list(self, request):
-        # type, token = request.META.get('HTTP_AUTHORIZATION').split()
-        token = 'iqzltkmurffxqduysbykhvvolosknr'
+        type, token = request.META.get('HTTP_AUTHORIZATION').split()
         user = TaskUser.objects.filter(token=token)
         return user
 
@@ -34,6 +33,7 @@ class TaskUserDetailResource(ModelResource):
         bundle.data['first_name'] = bundle.obj.first_name
         bundle.data['last_name'] = bundle.obj.last_name
         bundle.data['organization'] = bundle.obj.organization
+        bundle.data['organization_id'] = bundle.obj.organization.id
         del bundle.data['resource_uri']
         return bundle
 

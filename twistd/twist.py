@@ -8,21 +8,22 @@ from txzmq import ZmqFactory
 from txzmq import ZmqREPConnection
 from tastypie_driver import TastyPieDriver
 
-transports = set()
+transports = dict()
 
 
 class TasksProtocol(Protocol):
 
     def __init__(self):
+        self.key = None
         self.driver = TastyPieDriver()
 
     def connectionMade(self):
         print('connection started')
-        transports.add(self.transport)
 
     def connectionLost(self, reason):
         print('connection closed')
-        transports.remove(self.transport)
+        if self.key:
+            transports[self.key].remove(self.transport)
 
     def dataReceived(self, data):
         data = json.loads(data)
@@ -34,21 +35,36 @@ class TasksProtocol(Protocol):
 
     def auth_callback(self, data):
         data = json.loads(data)
-        data = json.dumps(data['objects'][0])
-        self.transport.write(data)
+        data = data['objects'][0]
+
+        if data['organization']:
+            self.organization_id = data['organization_id']
+
+        self.transport.write(json.dumps(data))
 
 
-    def set_project(self, id):
-        pass
+    def set_project(self, data):
+        if self.key:
+            transports[self.key].remove(self.transport)
+        project_id = data['project_id']
+        self.key = '{}:{}'.format(self.organization_id, project_id)
+        if not transports.get(self.key, False):
+            transports[self.key] = set()
+        transports[self.key].add(self.transport)
+        # need to remove this transport from previous dictionary
         # will reset the locaiton of htis protocol
 
 
 class TwistedRepConnection(ZmqREPConnection):
     def gotMessage(self, message_id, *messageParts):
-        print('gotMessage')
-        data = ''.join(messageParts)
-        broadcast(data, transports)
-
+        message = ''.join(messageParts)
+        data = json.loads(message)
+        key = '{}:{}'.format(data['organization_id'], data['project_id'])
+        print(key)
+        print(transports)
+        channels = transports.get(key, False)
+        if channels:
+            broadcast(message, channels)
         self.reply(message_id, '')
 
 
