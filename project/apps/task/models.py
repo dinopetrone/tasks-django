@@ -126,6 +126,7 @@ def notify_task_update(sender, instance, created, raw, **kwargs):
     dic = model_to_dict(instance)
     dic['organization_id'] = instance.project.organization.id
     dic['project_id'] = instance.project.id
+    dic['type'] = 'task'
     model_json = json.dumps(dic)
     c = zmq.Context()
     s = c.socket(zmq.REQ)
