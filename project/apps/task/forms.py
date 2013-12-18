@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from .models import TaskUser
 
-from task.models import TaskUser
 
 class TaskUserCreationForm(UserCreationForm):
     """
@@ -15,6 +15,7 @@ class TaskUserCreationForm(UserCreationForm):
     class Meta:
         model = TaskUser
         fields = ("email",)
+
 
 class TaskUserChangeForm(UserChangeForm):
     """A form for updating users. Includes all the fields on

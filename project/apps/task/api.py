@@ -8,7 +8,7 @@ from tastypie.authorization import Authorization
 from tastypie.authentication import Authentication
 
 from task.models import Task, Project, TaskUser
-
+from . import ipc
 
 # class TaskAuthorization(Authorization):
 #     def read_list(self, object_list, bundle):
@@ -23,6 +23,7 @@ class TaskUserDetailResource(ModelResource):
         serializer = Serializer(["json"])
         resource_name = 'user'
         list_allowed_methods = ['get']
+
     def get_object_list(self, request):
         type, token = request.META.get('HTTP_AUTHORIZATION').split()
         user = TaskUser.objects.filter(token=token)
@@ -37,6 +38,7 @@ class TaskUserDetailResource(ModelResource):
         del bundle.data['resource_uri']
         return bundle
 
+
 class TaskUserResource(ModelResource):
     class Meta:
         queryset = TaskUser.objects.all()
@@ -45,8 +47,20 @@ class TaskUserResource(ModelResource):
         }
 
 
-class ProjectResource(ModelResource):
+class IPCModelResource(ModelResource):
+    ipc_handler = None
+
+    def obj_update(self, bundle, skip_errors=False, **kwargs):
+        type, token = bundle.request.META.get('HTTP_AUTHORIZATION').split()
+
+        super(ProjectResource, self).obj_update(bundle, skip_errors, **kwargs)
+        self.ipc_handler(bundle.obj, token)
+
+
+class ProjectResource(IPCModelResource):
     users = fields.ToManyField('task.api.TaskUserResource', 'users', null=True)
+    ipc_handler = ipc.notify_project_update
+
     class Meta:
         queryset = Project.objects.all()
         resource_name = 'project'
@@ -82,9 +96,10 @@ class ProjectResource(ModelResource):
             return objects.filter(users=user)
 
 
-
-class TaskResource(ModelResource):
+class TaskResource(IPCModelResource):
     project = fields.ForeignKey('task.api.ProjectResource', 'project', full=True, null=True)
+    ipc_handler = ipc.notify_task_update
+
     class Meta:
         queryset = Task.objects.all()
         resource_name = 'task'
@@ -132,7 +147,6 @@ class TaskResource(ModelResource):
         return data
 
 
-
 class TokenObject(object):
     def __init__(self, initial=None):
         self.__dict__['_data'] = {}
@@ -149,16 +163,18 @@ class TokenObject(object):
     def to_dict(self):
         return self._data
 
+
 class TokenResource(Resource):
     token = fields.CharField(attribute='token', null=True)
     ok = fields.BooleanField(attribute='ok')
 
     class Meta:
-        include_resource_uri  = False
+        include_resource_uri = False
         resource_name = 'token'
         serializer = Serializer(["json"])
+
     def obj_get(self, bundle, **kwargs):
-        tokenResponse = TokenObject({'ok':False})
+        tokenResponse = TokenObject({'ok': False})
         pk = kwargs['pk']
         try:
             username = pk.split('/')[0]
@@ -172,5 +188,5 @@ class TokenResource(Resource):
             user.token = token
             tokenResponse.token = token
             tokenResponse.ok = True
-            user.save();
+            user.save()
             return tokenResponse

@@ -101,36 +101,36 @@ class Task(models.Model):
 
 
 
-@receiver(post_save, sender=Project)
-def notify_project_update(sender, instance, created, raw, **kwargs):
-    if created:
-        return
-    dic = model_to_dict(instance)
-    dic['organization_id'] = instance.organization.id
-    dic['project_id'] = instance.id
-    dic['type'] = 'project'
-    del dic['users']
-    model_json = json.dumps(dic)
-    c = zmq.Context()
-    s = c.socket(zmq.REQ)
-    ipc = 'ipc:///tmp/tasks_broker'
-    s.connect(ipc)
-    s.send(model_json)
-    s.recv()
+# @receiver(post_save, sender=Project)
+# def notify_project_update(sender, instance, created, raw, **kwargs):
+#     if created:
+#         return
+#     dic = model_to_dict(instance)
+#     dic['organization_id'] = instance.organization.id
+#     dic['project_id'] = instance.id
+#     dic['type'] = 'project'
+#     del dic['users']
+#     model_json = json.dumps(dic)
+#     c = zmq.Context()
+#     s = c.socket(zmq.REQ)
+#     ipc = 'ipc:///tmp/tasks_broker'
+#     s.connect(ipc)
+#     s.send(model_json)
+#     s.recv()
 
 
-@receiver(post_save, sender=Task)
-def notify_task_update(sender, instance, created, raw, **kwargs):
-    if created:
-        return
-    dic = model_to_dict(instance)
-    dic['organization_id'] = instance.project.organization.id
-    dic['project_id'] = instance.project.id
-    dic['type'] = 'task'
-    model_json = json.dumps(dic)
-    c = zmq.Context()
-    s = c.socket(zmq.REQ)
-    ipc = 'ipc:///tmp/tasks_broker'
-    s.connect(ipc)
-    s.send(model_json)
-    s.recv()
+# @receiver(post_save, sender=Task)
+# def notify_task_update(sender, instance, created, raw, **kwargs):
+#     if created:
+#         return
+#     dic = model_to_dict(instance)
+#     dic['organization_id'] = instance.project.organization.id
+#     dic['project_id'] = instance.project.id
+#     dic['type'] = 'task'
+#     model_json = json.dumps(dic)
+#     c = zmq.Context()
+#     s = c.socket(zmq.REQ)
+#     ipc = 'ipc:///tmp/tasks_broker'
+#     s.connect(ipc)
+#     s.send(model_json)
+#     s.recv()
