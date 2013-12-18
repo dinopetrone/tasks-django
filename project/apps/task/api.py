@@ -157,17 +157,13 @@ class TaskResource(IPCModelResource):
         authorization = Authorization()
 
     def alter_deserialized_detail_data(self, request, data):
-        type, token = request.META.get('HTTP_AUTHORIZATION').split()
-        user = TaskUser.objects.get(token=token)
-        data['assigned_to'] = user.id
+        data['assigned_to'] = request.user.id
         return data
 
     def dehydrate(self, bundle):
         task = bundle.obj
         if task.status == 2:
-            type, token = bundle.request.META.get('HTTP_AUTHORIZATION').split()
-            user = TaskUser.objects.get(token=token)
-            task.assigned_to = user
+            task.assigned_to = bundle.request.user
             task.save()
         return bundle
 
