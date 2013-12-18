@@ -32,16 +32,27 @@ class TasksProtocol(Protocol):
         action(data['data'])
 
     def authorize(self, data):
-        self.driver.authorize(data['token'], self.auth_callback);
+        self.driver.authorize(data['token'], self.auth_success_callback, self.auth_fail_callback);
 
-    def auth_callback(self, data):
+    def auth_success_callback(self, data):
         data = json.loads(data)
         data = data['objects'][0]
 
         if data['organization']:
             self.organization_id = data['organization_id']
 
-        self.transport.write(json.dumps(data))
+        out = {
+            'ok':True,
+            'data':data
+        }
+        self.transport.write(json.dumps(out))
+
+    def auth_fail_callback(self, data):
+        out = {
+            "ok":False
+        }
+        self.transport.write(json.dumps(out))
+
 
 
     def set_project(self, data):

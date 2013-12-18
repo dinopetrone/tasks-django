@@ -123,6 +123,8 @@ class ProjectResource(IPCModelResource):
         project.users.remove(bundle.request.user)
 
 
+
+
     def get_object_list(self, request):
         objects = self._meta.queryset._clone()
         if request.GET.get('all', False):
@@ -212,7 +214,7 @@ class TokenResource(Resource):
             password = pk.split('/')[1]
             user = TaskUser.objects.get(username=username)
             is_valid = user.check_password(password)
-        except TaskUser.DoesNotExist:
+        except Exception:
             return tokenResponse
         if is_valid:
             token = ''.join(random.choice(string.lowercase) for i in range(30))
