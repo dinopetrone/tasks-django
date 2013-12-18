@@ -6,7 +6,7 @@ from django.forms.models import model_to_dict
 IPC_ADDRESS = 'ipc:///tmp/tasks_broker'
 
 
-def get_ipc():
+def ipc_connection():
     global IPC_ADDRESS
 
     context = zmq.Context()
@@ -16,7 +16,7 @@ def get_ipc():
 
 
 def ipc_send(data):
-    socket = get_ipc()
+    socket = ipc_connection()
     socket.send(data)
 
     return socket.recv()
