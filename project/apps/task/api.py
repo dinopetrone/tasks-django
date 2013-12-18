@@ -51,10 +51,17 @@ class IPCModelResource(ModelResource):
     ipc_handler = None
 
     def obj_update(self, bundle, skip_errors=False, **kwargs):
+        super(ProjectResource, self).obj_update(bundle, skip_errors, **kwargs)
+
         type, token = bundle.request.META.get('HTTP_AUTHORIZATION').split()
 
-        super(ProjectResource, self).obj_update(bundle, skip_errors, **kwargs)
-        self.ipc_handler(bundle.obj, token)
+        # Get the unbound version of the function.
+        # Going though self.ipc_handler retrieves the value
+        # as a bound method (aka binds self as the first arg)
+        # since it's retrieval is running though the class's
+        # descriptor machinery
+        ipc_handler = self.ipc_handler.__func__
+        ipc_handler(bundle.obj, token)
 
 
 class ProjectResource(IPCModelResource):
