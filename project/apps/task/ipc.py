@@ -15,17 +15,21 @@ def get_ipc():
     return socket
 
 
+def ipc_send(data):
+    socket = get_ipc()
+    socket.send(data)
+
+    return socket.recv()
+
+
 def notify_task_update(instance, token=None):
     dic = model_to_dict(instance)
     dic['organization_id'] = instance.project.organization.id
     dic['project_id'] = instance.project.id
     dic['type'] = 'task'
 
-    model_json = json.dumps(dic)
-
-    socket = get_ipc()
-    socket.send(model_json)
-    socket.recv()
+    data = json.dumps(dic)
+    ipc_send(data)
 
 
 def notify_project_update(instance, token=None):
@@ -36,8 +40,5 @@ def notify_project_update(instance, token=None):
     dic['type'] = 'project'
     del dic['users']
 
-    model_json = json.dumps(dic)
-
-    socket = get_ipc()
-    socket.send(model_json)
-    socket.recv()
+    data = json.dumps(dic)
+    ipc_send(data)
