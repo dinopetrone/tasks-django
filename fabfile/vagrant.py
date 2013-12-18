@@ -35,6 +35,7 @@ def runall():
     # local('nohup fab vagrant.celerybeat &')
     # local('nohup fab vagrant.css_watch &')
     local('nohup fab vagrant.runserver &')
+    local('nohup fab vagrant.sockets &')
     local('tail -f nohup.out')
 
 @task
@@ -46,7 +47,7 @@ def killall():
         local("ps ax | grep '[m]anage.py worker' | awk '{ print $1 }' | xargs sudo kill -9")
         local("ps ax | grep '[m]anage.py celerybeat' | awk '{ print $1 }' | xargs sudo kill -9")
         local("ps ax | grep '[m]anage.py compass' | awk '{ print $1 }' | xargs sudo kill -9")
-        local("ps ax | grep '[m]anage.py sass' | awk '{ print $1 }' | xargs sudo kill -9")
+        local("ps ax | grep '[p]ython ./twistd/twist.py' | awk '{ print $1 }' | xargs sudo kill -9")
 
 @task
 def runserver():
@@ -61,6 +62,14 @@ def gunicorn():
         # FOR SOME REASON IF THE PROCESS WASN'T ENDED CORRECTLY, THIS WILL KILL IT
         local("ps ax | grep '[m]anage.py run_gunicorn' | awk '{ print $1 }' | xargs kill -9")
         local('python ./manage.py run_gunicorn [::]:8000')
+
+
+@task
+def sockets():
+    with settings(warn_only=True):
+        # FOR SOME REASON IF THE PROCESS WASN'T ENDED CORRECTLY, THIS WILL KILL IT
+        local("ps ax | grep '[p]ython ./twistd/twist.py' | awk '{ print $1 }' | xargs kill -9")
+        local('python ./twistd/twist.py')
 
 @task
 def celery():

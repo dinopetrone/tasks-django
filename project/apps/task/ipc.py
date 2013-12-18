@@ -27,6 +27,7 @@ def notify_task_update(instance, token=None):
     dic['organization_id'] = instance.project.organization.id
     dic['project_id'] = instance.project.id
     dic['type'] = 'task'
+    dic['token'] = token
 
     data = json.dumps(dic)
     ipc_send(data)
@@ -38,6 +39,7 @@ def notify_project_update(instance, token=None):
     dic['organization_id'] = instance.organization.id
     dic['project_id'] = instance.id
     dic['type'] = 'project'
+    dic['token'] = token
     del dic['users']
 
     data = json.dumps(dic)
