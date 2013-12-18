@@ -6,6 +6,7 @@ from tastypie import fields
 from tastypie.serializers import Serializer
 from tastypie.authorization import Authorization
 from tastypie.authentication import Authentication
+from tastypie.http import HttpUnauthorized
 from tastypie.compat import User
 
 from task.models import Task, Project, TaskUser
@@ -13,23 +14,24 @@ from . import ipc
 
 class TokenAuthentication(Authorization):
 
-    def extract_credentials(self, request):
-        return request.META.get('HTTP_AUTHORIZATION').split()
-
     def get_identifier(self, request):
         return request.user.email
 
+    def _unauthorized(self):
+        response = HttpUnauthorized()
+        return response
+
     def is_authenticated(self, request, **kwargs):
         try:
-            type, token = self.extract_credentials(request)
-        except ValueError:
+            type, token = request.META.get('HTTP_AUTHORIZATION').split()
+        except:
             return self._unauthorized()
-
         if not token:
             return self._unauthorized()
 
         try:
             user = TaskUser.objects.get(token=token)
+
         except (User.DoesNotExist, User.MultipleObjectsReturned):
             return self._unauthorized()
 
@@ -48,9 +50,7 @@ class TaskUserDetailResource(ModelResource):
         list_allowed_methods = ['get']
 
     def get_object_list(self, request):
-        type, token = request.META.get('HTTP_AUTHORIZATION').split()
-        user = TaskUser.objects.filter(token=token)
-        return user
+        return request.user.user
 
     def dehydrate(self, bundle):
         bundle.data['username'] = bundle.obj.username
@@ -77,15 +77,13 @@ class IPCModelResource(ModelResource):
         result = super(IPCModelResource, self) \
             .obj_update(bundle, skip_errors, **kwargs)
 
-        type, token = bundle.request.META.get('HTTP_AUTHORIZATION').split()
-
         # Get the unbound version of the function.
         # Going though self.ipc_handler retrieves the value
         # as a bound method (aka binds self as the first arg)
         # since it's retrieval is running though the class's
         # descriptor machinery
         ipc_handler = self.ipc_handler.__func__
-        ipc_handler(bundle.obj, token)
+        ipc_handler(bundle.obj, bundle.request.token)
 
         return result
 

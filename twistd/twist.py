@@ -15,6 +15,7 @@ class TasksProtocol(Protocol):
 
     def __init__(self):
         self.key = None
+        self.organization_id = None
         self.driver = TastyPieDriver()
 
     def connectionMade(self):
