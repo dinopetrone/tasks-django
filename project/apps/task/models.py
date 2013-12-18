@@ -92,7 +92,7 @@ class Project(models.Model):
 
 class Task(models.Model):
     label = models.CharField(max_length=256, blank=False)
-    description = models.TextField(max_length=2000, blank=False)
+    description = models.TextField(max_length=2000, blank=False, null=True)
     project = models.ForeignKey(Project)
     status = models.IntegerField(choices=STATUS_LIST, default=0)
     loe = models.IntegerField(choices=LOE, default=0)
