@@ -51,7 +51,8 @@ class IPCModelResource(ModelResource):
     ipc_handler = None
 
     def obj_update(self, bundle, skip_errors=False, **kwargs):
-        super(ProjectResource, self).obj_update(bundle, skip_errors, **kwargs)
+        result = super(IPCModelResource, self) \
+            .obj_update(bundle, skip_errors, **kwargs)
 
         type, token = bundle.request.META.get('HTTP_AUTHORIZATION').split()
 
@@ -62,6 +63,8 @@ class IPCModelResource(ModelResource):
         # descriptor machinery
         ipc_handler = self.ipc_handler.__func__
         ipc_handler(bundle.obj, token)
+
+        return result
 
 
 class ProjectResource(IPCModelResource):

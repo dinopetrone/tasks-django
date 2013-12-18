@@ -16,7 +16,6 @@ def get_ipc():
 
 
 def notify_task_update(instance, token=None):
-    print(token)
     dic = model_to_dict(instance)
     dic['organization_id'] = instance.project.organization.id
     dic['project_id'] = instance.project.id
