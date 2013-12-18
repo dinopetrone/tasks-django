@@ -68,7 +68,7 @@ class IPCModelResource(ModelResource):
 
 
 class ProjectResource(IPCModelResource):
-    users = fields.ToManyField('task.api.TaskUserResource', 'users', null=True)
+    # users = fields.ToManyField('task.api.TaskUserResource', 'users', null=True)
     ipc_handler = ipc.notify_project_update
 
     class Meta:
@@ -87,14 +87,26 @@ class ProjectResource(IPCModelResource):
         authentication = Authentication()
         authorization = Authorization()
 
+    def alter_deserialized_detail_data(self, request, data):
+
+        return data
+
     def dehydrate(self, bundle):
         project = bundle.obj
         type, token = bundle.request.META.get('HTTP_AUTHORIZATION').split()
-        user = TaskUser.objects.get(token=token)
-        project.organization = user.organization
-        project.users.add(user)
+        self.user = TaskUser.objects.get(token=token)
+        project.organization = self.user.organization
+        project.users.add(self.user)
         project.save()
         return bundle
+
+    def obj_delete(self, bundle, pk):
+        # we dont want to delete the project,
+        # just remove the user from the project
+        project = Project.objects.get(id=pk)
+        project.users.remove(self.user)
+
+
 
     def get_object_list(self, request):
         type, token = request.META.get('HTTP_AUTHORIZATION').split()
