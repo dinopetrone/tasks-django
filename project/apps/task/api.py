@@ -6,16 +6,39 @@ from tastypie import fields
 from tastypie.serializers import Serializer
 from tastypie.authorization import Authorization
 from tastypie.authentication import Authentication
+from tastypie.compat import User
 
 from task.models import Task, Project, TaskUser
 from . import ipc
 
-# class TaskAuthorization(Authorization):
-#     def read_list(self, object_list, bundle):
-#         token = bundle.request.GET['token']
-#         user = TaskUser.objects.get(token=token)
-#         # object_list = object_list
-#         return object_list
+class TokenAuthentication(Authorization):
+
+    def extract_credentials(self, request):
+        return request.META.get('HTTP_AUTHORIZATION').split()
+
+    def get_identifier(self, request):
+        return request.user.email
+
+    def is_authenticated(self, request, **kwargs):
+        try:
+            type, token = self.extract_credentials(request)
+        except ValueError:
+            return self._unauthorized()
+
+        if not token:
+            return self._unauthorized()
+
+        try:
+            user = TaskUser.objects.get(token=token)
+        except (User.DoesNotExist, User.MultipleObjectsReturned):
+            return self._unauthorized()
+
+        request.user = user
+        request.token = token
+        return True
+
+
+
 
 
 class TaskUserDetailResource(ModelResource):
@@ -84,19 +107,14 @@ class ProjectResource(IPCModelResource):
         always_return_data = True
         detail_allowed_methods = ['get', 'post', 'patch', 'put', 'delete']
         list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
-        authentication = Authentication()
+        authentication = TokenAuthentication()
         authorization = Authorization()
 
-    def alter_deserialized_detail_data(self, request, data):
-
-        return data
 
     def dehydrate(self, bundle):
         project = bundle.obj
-        type, token = bundle.request.META.get('HTTP_AUTHORIZATION').split()
-        self.user = TaskUser.objects.get(token=token)
-        project.organization = self.user.organization
-        project.users.add(self.user)
+        project.organization = bundle.request.user.organization
+        project.users.add(bundle.request.user)
         project.save()
         return bundle
 
@@ -104,18 +122,15 @@ class ProjectResource(IPCModelResource):
         # we dont want to delete the project,
         # just remove the user from the project
         project = Project.objects.get(id=pk)
-        project.users.remove(self.user)
-
+        project.users.remove(bundle.request.user)
 
 
     def get_object_list(self, request):
-        type, token = request.META.get('HTTP_AUTHORIZATION').split()
-        user = TaskUser.objects.get(token=token)
         objects = self._meta.queryset._clone()
         if request.GET.get('all', False):
-            return objects.filter(organization=user.organization)
+            return objects.filter(organization=request.user.organization)
         else:
-            return objects.filter(users=user)
+            return objects.filter(users=request.user)
 
 
 class TaskResource(IPCModelResource):
@@ -138,7 +153,7 @@ class TaskResource(IPCModelResource):
         always_return_data = True
         detail_allowed_methods = ['get', 'post', 'patch', 'put', 'delete']
         list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
-        authentication = Authentication()
+        authentication = TokenAuthentication()
         authorization = Authorization()
 
     def alter_deserialized_detail_data(self, request, data):
