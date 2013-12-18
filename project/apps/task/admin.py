@@ -32,11 +32,11 @@ class TaskUserAdmin(UserAdmin):
     ordering = ('email',)
 
 
-class IPCAdmin(admin.ModelAdmin):
+class IPCModelAdmin(admin.ModelAdmin):
     ipc_handler = None
 
     def save_model(self, request, obj, form, change):
-        super(IPCAdmin, self).save_model(request, obj, form, change)
+        super(IPCModelAdmin, self).save_model(request, obj, form, change)
 
         # Get the unbound version of the function.
         # Going though self.ipc_handler retrieves the value
@@ -50,11 +50,11 @@ class IPCAdmin(admin.ModelAdmin):
         ipc_handler(obj, None)
 
 
-class TaskAdmin(IPCAdmin):
+class TaskAdmin(IPCModelAdmin):
     ipc_handler = ipc.notify_task_update
 
 
-class ProjectAdmin(IPCAdmin):
+class ProjectAdmin(IPCModelAdmin):
     ipc_handler = ipc.notify_project_update
 
 admin.site.register(TaskUser, TaskUserAdmin)
