@@ -154,7 +154,7 @@ class ProjectResource(IPCModelResource):
     def get_object_list(self, request):
         objects = self._meta.queryset._clone()
         if request.GET.get('all', False):
-            return objects.filter(organization=request.user.organization)
+            return objects.filter(organization=request.user.organization).exclude(users=request.user)
         else:
             return objects.filter(users=request.user)
 
