@@ -123,13 +123,22 @@ class ProjectResource(IPCModelResource):
         authentication = TokenAuthentication()
         authorization = Authorization()
 
-
-    def dehydrate(self, bundle):
+    def obj_create(self, *args, **kwargs):
+        bundle = super(self.__class__, self).obj_create( *args, **kwargs)
         project = bundle.obj
         project.organization = bundle.request.user.organization
         project.users.add(bundle.request.user)
         project.save()
         return bundle
+
+
+    def obj_update(self, bundle, **kwargs):
+        bundle = super(self.__class__, self).obj_update( bundle, **kwargs)
+        project = bundle.obj
+        if bundle.data.get('user', False):
+            project.users.add(bundle.request.user)
+        return bundle
+
 
     def obj_delete(self, bundle, pk):
         # we dont want to delete the project,
@@ -137,7 +146,9 @@ class ProjectResource(IPCModelResource):
         project = Project.objects.get(id=pk)
         project.users.remove(bundle.request.user)
 
-
+    def obj_save(self, bundle):
+        print('hi')
+        super(ProjectResource, self).obj_save(self, bundle)
 
 
     def get_object_list(self, request):
