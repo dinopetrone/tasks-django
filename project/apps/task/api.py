@@ -99,7 +99,13 @@ class IPCModelResource(ModelResource):
         # descriptor machinery
         ipc_handler = self.ipc_handler.__func__
         ipc_handler(bundle.obj, bundle.request.token)
+        return result
 
+    def obj_create(self, bundle, **kwargs):
+        result = super(IPCModelResource, self) \
+            .obj_create( bundle, skip_errors=False, **kwargs)
+        ipc_handler = self.ipc_handler.__func__
+        ipc_handler(bundle.obj, bundle.request.token, action='create')
         return result
 
 
