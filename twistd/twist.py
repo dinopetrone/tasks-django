@@ -36,7 +36,6 @@ class TasksProtocol(Protocol):
 
     def auth_success_callback(self, data):
         data = json.loads(data)
-        data = data['objects'][0]
 
         if data['organization']:
             self.organization_id = data['organization_id']

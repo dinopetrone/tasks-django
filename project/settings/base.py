@@ -269,6 +269,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # more details on how to customize your logging configuration.
 LOG_FILENAME = None
 ENABLE_EMAIL_LOGGING = environ.get('ENABLE_EMAIL_LOGGING', 'NO') == 'YES'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -294,13 +295,13 @@ LOGGING = {
            'filters': ['require_debug_false', 'ratelimit'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'stream': {
+        'stream' : {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
-        'file': {
-            'level': 'DEBUG',
+        'file' : {
+            'level' : 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': LOG_FILENAME and LOG_FILENAME or '/dev/null',
             'formatter': 'verbose'
@@ -308,7 +309,6 @@ LOGGING = {
     },
 
     'loggers': {
-
         '': {
             'handlers': ENABLE_EMAIL_LOGGING and ['stream', 'mail_admins'] or ['stream'],
             'level': 'DEBUG',

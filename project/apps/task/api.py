@@ -8,6 +8,7 @@ from tastypie.authorization import Authorization
 from tastypie.authentication import Authentication
 from tastypie.http import HttpUnauthorized
 from tastypie.compat import User
+from django.forms.models import model_to_dict
 
 from task.models import Task, Project, TaskUser
 from . import ipc
@@ -40,26 +41,40 @@ class TokenAuthentication(Authorization):
         return True
 
 
+class ResponseObject(object):
+    def __init__(self, initial=None):
+        self.__dict__['_data'] = {}
 
+        if hasattr(initial, 'items'):
+            self.__dict__['_data'] = initial
+
+    def __getattr__(self, name):
+        return self._data.get(name, None)
+
+    def __setattr__(self, name, value):
+        self.__dict__['_data'][name] = value
+
+    def to_dict(self):
+        return self._data
 
 
 class TaskUserDetailResource(ModelResource):
+    username = fields.CharField(attribute='username')
+    first_name = fields.CharField(attribute='first_name')
+    last_name = fields.CharField(attribute='last_name')
+    organization = fields.CharField(attribute='organization')
+    organization_id = fields.CharField(attribute='organization_id')
+
     class Meta:
-        serializer = Serializer(["json"])
+        include_resource_uri = False
         resource_name = 'user'
-        list_allowed_methods = ['get']
+        authentication = TokenAuthentication()
+        authorization = Authorization()
+        serializer = Serializer(["json"])
 
-    def get_object_list(self, request):
-        return request.user.user
+    def obj_get(self, bundle, **kwargs):
+        return bundle.request.user
 
-    def dehydrate(self, bundle):
-        bundle.data['username'] = bundle.obj.username
-        bundle.data['first_name'] = bundle.obj.first_name
-        bundle.data['last_name'] = bundle.obj.last_name
-        bundle.data['organization'] = bundle.obj.organization
-        bundle.data['organization_id'] = bundle.obj.organization.id
-        del bundle.data['resource_uri']
-        return bundle
 
 
 class TaskUserResource(ModelResource):
@@ -180,21 +195,7 @@ class TaskResource(IPCModelResource):
         return data
 
 
-class TokenObject(object):
-    def __init__(self, initial=None):
-        self.__dict__['_data'] = {}
 
-        if hasattr(initial, 'items'):
-            self.__dict__['_data'] = initial
-
-    def __getattr__(self, name):
-        return self._data.get(name, None)
-
-    def __setattr__(self, name, value):
-        self.__dict__['_data'][name] = value
-
-    def to_dict(self):
-        return self._data
 
 
 class TokenResource(Resource):
@@ -207,7 +208,7 @@ class TokenResource(Resource):
         serializer = Serializer(["json"])
 
     def obj_get(self, bundle, **kwargs):
-        tokenResponse = TokenObject({'ok': False})
+        tokenResponse = ResponseObject({'ok': False})
         pk = kwargs['pk']
         try:
             username = pk.split('/')[0]
