@@ -130,7 +130,7 @@ class ProjectResource(IPCModelResource):
         authorization = Authorization()
 
     def obj_create(self, *args, **kwargs):
-        bundle = super(self.__class__, self).obj_create( *args, **kwargs)
+        bundle = super(ModelResource, self).obj_create( *args, **kwargs)
         project = bundle.obj
         project.organization = bundle.request.user.organization
         project.users.add(bundle.request.user)
