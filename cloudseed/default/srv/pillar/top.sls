@@ -2,3 +2,4 @@ base:
   '*':
     - postgresql
     - application
+    - nginx

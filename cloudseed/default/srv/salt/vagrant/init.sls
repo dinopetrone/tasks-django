@@ -17,6 +17,7 @@ include:
   - memcached
   - postgresql
   - postgresql.dev
+  - python.nginx.gunicorn
 
 # this must be run first
 app.user:
