@@ -343,30 +343,4 @@ USE_HTTPS_FOR_ASSETS = False
 
 
 
-########## REQUIRE CONFIGURATION
-# The baseUrl to pass to the r.js optimizer.
-REQUIRE_BASE_URL = "js"
-
-# The name of a build profile to use for your project, relative to REQUIRE_BASE_URL.
-# A sensible value would be 'app.build.js'. Leave blank to use the built-in default build profile.
-REQUIRE_BUILD_PROFILE = "app.build.js"
-
-# The name of the require.js script used by your project, relative to REQUIRE_BASE_URL.
-REQUIRE_JS = "vendor/require.js"
-
-# A dictionary of standalone modules to build with almond.js.
-# See the section on Standalone Modules, below.
-REQUIRE_STANDALONE_MODULES = {}
-
-# Whether to run django-require in debug mode.
-REQUIRE_DEBUG = False
-
-# A tuple of files to exclude from the compilation result of r.js.
-REQUIRE_EXCLUDE = ("build.txt",)
-
-# The execution environment in which to run r.js: node or rhino.
-REQUIRE_ENVIRONMENT = "node"
-########## END REQUIRE CONFIGURATION
-
-
 AUTH_USER_MODEL = 'task.TaskUser'

@@ -68,7 +68,6 @@ AWS_QUERYSTRING_AUTH = False
 DEFAULT_FILE_STORAGE = "utils.storage.MediaRootS3BotoStorage"
 MEDIA_URL = 'http://s3.amazonaws.com/{}/uploads/'.format(AWS_STORAGE_BUCKET_NAME)
 
-STATICFILES_STORAGE = 'require.storage.OptimizedStaticFilesStorage'
 
 ########## END STORAGE SETTINGS
 
