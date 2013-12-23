@@ -1,6 +1,6 @@
 {% from "python/map.jinja" import python with context %}
-{% set user = 'vagrant' %}
-{% set home = '/home/%s'|format(user) %}
+{% set user = salt['pillar.get']('app:user:name', 'app') %}
+{% set home = salt['pillar.get']('app:user:home', '/home/app') %}
 {% set envpath = '%s/project-env'|format(home)  %}
 
 include:
@@ -17,6 +17,14 @@ include:
   - memcached
   - postgresql
   - postgresql.dev
+
+# this must be run first
+app.user:
+  user.present:
+    - name: {{ user }}
+    - home: {{ home }}
+    - shell: {{ salt['pillar.get']('app:user:shell', '/bin/bash') }}
+    - order: 1
 
 app.virtualenv:
   virtualenv.managed:
