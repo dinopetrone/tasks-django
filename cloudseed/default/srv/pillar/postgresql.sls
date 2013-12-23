@@ -1,26 +1,26 @@
 postgresql:
   users:
-    vagrant:
-      password: vagrant
+    app:
+      password: app
       createdb: true
 
   databases:
     django:
-      owner: vagrant
+      owner: app
 
   hba:
    - type: local
      database: django
-     user: vagrant
+     user: app
      method: ident
 
    - type: local
      database: postgres
-     user: vagrant
+     user: app
      method: ident
 
    - type: host
      database: django
-     user: vagrant
+     user: app
      address: 0.0.0.0/0
      method: md5
