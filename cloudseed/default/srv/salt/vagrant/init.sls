@@ -21,6 +21,7 @@ include:
 app.virtualenv:
   virtualenv.managed:
     - name: {{ envpath }}
+    - runas: {{ user }}
     - require:
       - pip: python.virtualenv
 
