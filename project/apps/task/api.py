@@ -59,7 +59,6 @@ class ResponseObject(object):
 
 
 class TaskUserDetailResource(ModelResource):
-    username = fields.CharField(attribute='username')
     first_name = fields.CharField(attribute='first_name')
     last_name = fields.CharField(attribute='last_name')
     organization = fields.CharField(attribute='organization')
@@ -226,11 +225,10 @@ class TokenResource(Resource):
 
     def obj_get(self, bundle, **kwargs):
         tokenResponse = ResponseObject({'ok': False})
-        pk = kwargs['pk']
         try:
-            username = pk.split('/')[0]
-            password = pk.split('/')[1]
-            user = TaskUser.objects.get(username=username)
+            email = bundle.request.GET.get('u', False)
+            password = bundle.request.GET.get('p', False)
+            user = TaskUser.objects.get(email=email)
             is_valid = user.check_password(password)
         except Exception:
             return tokenResponse

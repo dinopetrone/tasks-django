@@ -8,10 +8,13 @@ class Command(BaseCommand):
         organization = Organization()
         organization.label = 'blitz'
         organization.save();
-        user = TaskUser(username="admin", email="admin@local.com",is_superuser=True, is_staff=True)
+        user = TaskUser(email="dinopetrone@gmail.com",is_superuser=True, is_staff=True)
         user.set_password("pass")
         user.organization = organization
-
+        user.save()
+        user = TaskUser(email="aventurella@gmail.com",is_superuser=True, is_staff=True)
+        user.set_password("pass")
+        user.organization = organization
         user.save()
 
         self.stdout.write("Created admin: admin\n")

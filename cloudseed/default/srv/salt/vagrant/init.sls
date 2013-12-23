@@ -1,6 +1,6 @@
 {% from "python/map.jinja" import python with context %}
-{% set user = salt['pillar.get']('app:user:name', 'app') %}
-{% set home = salt['pillar.get']('app:user:home', '/home/app') %}
+{% set user = 'vagrant' %}
+{% set home = '/home/%s'|format(user) %}
 {% set envpath = '%s/project-env'|format(home)  %}
 
 include:
@@ -10,23 +10,17 @@ include:
   - ruby.compass
   - node
   - node.requirejs
+  - redis
+  - heroku
   - git
+  - rabbitmq
+  - memcached
   - postgresql
   - postgresql.dev
-  - python.nginx.gunicorn
-
-# this must be run first
-app.user:
-  user.present:
-    - name: {{ user }}
-    - home: {{ home }}
-    - shell: {{ salt['pillar.get']('app:user:shell', '/bin/bash') }}
-    - order: 1
 
 app.virtualenv:
   virtualenv.managed:
     - name: {{ envpath }}
-    - runas: {{ user }}
     - require:
       - pip: python.virtualenv
 

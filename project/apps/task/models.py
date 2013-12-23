@@ -59,7 +59,7 @@ class Organization(models.Model):
 
 
 class TaskUser(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=254, unique=True)
+    username = models.CharField(max_length=254, blank=True, null=True)
     email = models.EmailField('email address', max_length=254, unique=True)
     token = models.CharField(max_length=254, blank=True)
     first_name = models.CharField('first name', max_length=30, blank=True)
@@ -74,11 +74,18 @@ class TaskUser(AbstractBaseUser, PermissionsMixin):
     organization = models.ForeignKey(Organization, blank=True, null=True)
 
     def __unicode__(self):
-        return self.username
+        return self.email
 
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     objects = TaskUserManager()
+
+    def get_short_name(self):
+        return self.email
+
+    def get_full_name(self):
+        return self.email
+
 
 
 
