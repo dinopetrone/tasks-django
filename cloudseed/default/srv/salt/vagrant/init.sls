@@ -18,12 +18,12 @@ include:
   - postgresql
   - postgresql.dev
 
-# this must be one first
+# this must be run first
 app.user:
   user.present:
     - name: {{ user }}
     - home: {{ home }}
-    - shell: salt['pillar.get']('app:user:home', '/bin/bash')
+    - shell: salt['pillar.get']('app:user:shell', '/bin/bash')
     - order: 1
 
 app.virtualenv:
