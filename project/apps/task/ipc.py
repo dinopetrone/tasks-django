@@ -26,6 +26,7 @@ def notify_task_update(instance, token=None, action='update'):
     dic = model_to_dict(instance)
     dic['organization_id'] = instance.project.organization.id
     dic['project_id'] = instance.project.id
+    dic['project_label'] = instance.project.label
     dic['type'] = 'task'
     dic['token'] = token
     dic['action'] = action
