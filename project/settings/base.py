@@ -245,7 +245,7 @@ THIRD_PARTY_APPS = (
     'tastypie',
     'gunicorn',
     # 'djcelery',
-    'require',
+    # 'require',
     # Database migration helpers:
     'south',
 )
