@@ -23,7 +23,7 @@ app.user:
   user.present:
     - name: {{ user }}
     - home: {{ home }}
-    - shell: salt['pillar.get']('app:user:shell', '/bin/bash')
+    - shell: {{ salt['pillar.get']('app:user:shell', '/bin/bash') }}
     - order: 1
 
 app.virtualenv:
