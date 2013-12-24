@@ -183,15 +183,20 @@ class TaskResource(IPCModelResource):
         authentication = TokenAuthentication()
         authorization = Authorization()
 
-    def dehydrate(self, bundle):
+
+
+    def obj_update(self, bundle, **kwargs):
+        bundle.data['assigned_email'] = bundle.request.user.email
+        bundle = super(ModelResource, self).obj_update( bundle, **kwargs)
         task = bundle.obj
         if task.status == 3:
             task.assigned_to = bundle.request.user
             task.save()
-            bundle.data['assigned_email'] = bundle.request.user
         if task.status <=2:
             task.assigned_to = None
             task.save();
+        ipc_handler = self.ipc_handler.__func__
+        ipc_handler(task, bundle.request.token)
         return bundle
 
 
