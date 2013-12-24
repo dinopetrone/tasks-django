@@ -30,9 +30,3 @@ Basic Django project
     admin username: admin
     admin password: pass
   
-\n
-\n
-\n
-\n
-\n
-\n
