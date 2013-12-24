@@ -32,3 +32,4 @@ Basic Django project
   
 \n
 \n
+\n
