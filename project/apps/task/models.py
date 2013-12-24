@@ -106,7 +106,10 @@ class Task(models.Model):
     task_type = models.IntegerField(choices=TYPE, default=0)
     assigned_to = models.ForeignKey(TaskUser, blank=True, null=True)
     def assigned_email(self):
-        return self.assigned_to.email
+        if self.assigned_to:
+            return self.assigned_to.email
+        return ''
+
 
 
 # @receiver(post_save, sender=Project)
