@@ -31,3 +31,4 @@ Basic Django project
     admin password: pass
   
 \n
+\n
