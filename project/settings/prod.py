@@ -54,19 +54,19 @@ CACHES = {
 ########## TOOLBAR CONFIGURATION
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
 INSTALLED_APPS += (
-    'storages',
+    'gunicorn',
 )
 
 ########## STORAGE SETTINGS
 
-AWS_ACCESS_KEY_ID = 'awspublickey'
-AWS_SECRET_ACCESS_KEY = 'awssecretkey'
+# AWS_ACCESS_KEY_ID = 'awspublickey'
+# AWS_SECRET_ACCESS_KEY = 'awssecretkey'
 
-AWS_BUCKET_NAME = AWS_STORAGE_BUCKET_NAME = 'tasks-app-local'
-AWS_QUERYSTRING_AUTH = False
+# AWS_BUCKET_NAME = AWS_STORAGE_BUCKET_NAME = 'tasks-app-local'
+# AWS_QUERYSTRING_AUTH = False
 
-DEFAULT_FILE_STORAGE = "utils.storage.MediaRootS3BotoStorage"
-MEDIA_URL = 'http://s3.amazonaws.com/{}/uploads/'.format(AWS_STORAGE_BUCKET_NAME)
+# DEFAULT_FILE_STORAGE = "utils.storage.MediaRootS3BotoStorage"
+# MEDIA_URL = 'http://s3.amazonaws.com/{}/uploads/'.format(AWS_STORAGE_BUCKET_NAME)
 
 
 ########## END STORAGE SETTINGS

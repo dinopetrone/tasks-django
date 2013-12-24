@@ -8,12 +8,11 @@ from tastypie.authorization import Authorization
 from tastypie.authentication import Authentication
 from tastypie.http import HttpUnauthorized
 from tastypie.compat import User
-from django.forms.models import model_to_dict
 
 from task.models import Task, Project, TaskUser
 from . import ipc
 
-class TokenAuthentication(Authorization):
+class TokenAuthentication(Authentication):
 
     def get_identifier(self, request):
         return request.user.email
@@ -151,10 +150,6 @@ class ProjectResource(IPCModelResource):
         project = Project.objects.get(id=pk)
         project.users.remove(bundle.request.user)
 
-    def obj_save(self, bundle):
-        print('hi')
-        super(ProjectResource, self).obj_save(self, bundle)
-
 
     def get_object_list(self, request):
         objects = self._meta.queryset._clone()
@@ -188,16 +183,17 @@ class TaskResource(IPCModelResource):
         authentication = TokenAuthentication()
         authorization = Authorization()
 
-    def alter_deserialized_detail_data(self, request, data):
-        data['assigned_to'] = request.user.id
-        return data
-
     def dehydrate(self, bundle):
         task = bundle.obj
-        if task.status == 2:
+        if task.status == 3:
             task.assigned_to = bundle.request.user
             task.save()
+            bundle.data['assigned_email'] = bundle.request.user
+        if task.status <=2:
+            task.assigned_to = None
+            task.save();
         return bundle
+
 
     def alter_detail_data_to_serialize(self, request, data):
         task = data.data
