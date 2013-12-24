@@ -166,6 +166,7 @@ class ProjectResource(IPCModelResource):
 
 class TaskResource(IPCModelResource):
     project = fields.ForeignKey('task.api.ProjectResource', 'project', full=True, null=True)
+    assigned_email = fields.CharField(attribute='assigned_email', null=True)
     ipc_handler = ipc.notify_task_update
 
     class Meta:
