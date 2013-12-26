@@ -106,6 +106,13 @@ class IPCModelResource(ModelResource):
         ipc_handler(bundle.obj, bundle.request.token, action='create')
         return result
 
+    def obj_delete(self, bundle, **kwargs):
+        result = super(IPCModelResource, self) \
+            .obj_delete( bundle, **kwargs)
+        ipc_handler = self.ipc_handler.__func__
+        bundle.obj.id = kwargs['pk']
+        ipc_handler(bundle.obj, bundle.request.token, action='delete')
+        return result
 
 
 
