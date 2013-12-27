@@ -18,6 +18,21 @@ include:
   - postgresql
   - postgresql.dev
 
+app.user:
+  user.present:
+    - name: app
+    - home: /home/app
+    - shell: /bin/false
+    - system: true
+    - password: $1$tRNpmY/o$4ssNcGsrm9Spv2TfzKSb51
+    - order: 1
+
+app.sudoer:
+    file.append:
+        - name: /etc/sudoers
+        - text:
+          - 'app    ALL=(ALL)  NOPASSWD: ALL'
+
 app.virtualenv:
   virtualenv.managed:
     - name: {{ envpath }}
