@@ -106,6 +106,15 @@ class IPCModelResource(ModelResource):
         ipc_handler(bundle.obj, bundle.request.token, action='create')
         return result
 
+    def obj_delete(self, bundle, **kwargs):
+        result = super(IPCModelResource, self) \
+            .obj_delete( bundle, **kwargs)
+        ipc_handler = self.ipc_handler.__func__
+        bundle.obj.id = kwargs['pk']
+        ipc_handler(bundle.obj, bundle.request.token, action='delete')
+        return result
+
+
 
 class ProjectResource(IPCModelResource):
     # users = fields.ToManyField('task.api.TaskUserResource', 'users', null=True)
@@ -158,6 +167,12 @@ class ProjectResource(IPCModelResource):
         else:
             return objects.filter(users=request.user)
 
+    def alter_list_data_to_serialize(self, request, data_dict):
+        if isinstance(data_dict,dict):
+            if 'meta' in data_dict:
+                del(data_dict['meta'])
+                return data_dict
+
 
 class TaskResource(IPCModelResource):
     project = fields.ForeignKey('task.api.ProjectResource', 'project', full=True, null=True)
@@ -205,12 +220,16 @@ class TaskResource(IPCModelResource):
         task['project'] = task['project'].data['resource_uri']
         return data
 
-    def alter_list_data_to_serialize(self, request, data):
-        objects = data['objects']
+    def alter_list_data_to_serialize(self, request, data_dict):
+        if isinstance(data_dict,dict):
+            if 'meta' in data_dict:
+                del(data_dict['meta'])
+                return data_dict
+        objects = data_dict['objects']
         for obj in objects:
             task = obj.data
             task['project'] = task['project'].data['resource_uri']
-        return data
+        return data_dict
 
 
 

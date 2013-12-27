@@ -24,6 +24,7 @@ def ipc_send(data):
 
 def notify_task_update(instance, token=None, action='update'):
     dic = model_to_dict(instance)
+
     dic['organization_id'] = instance.project.organization.id
     dic['project_id'] = instance.project.id
     dic['project_label'] = instance.project.label
@@ -32,6 +33,7 @@ def notify_task_update(instance, token=None, action='update'):
         dic['assigned_email'] = instance.assigned_to.email
     dic['type'] = 'task'
     dic['token'] = token
+    dic['id'] = instance.id
     dic['action'] = action
     data = json.dumps(dic)
     ipc_send(data)
