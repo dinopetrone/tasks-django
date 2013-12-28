@@ -96,6 +96,13 @@ class Project(models.Model):
     def __unicode__(self):
         return self.label
 
+    def tasks(self):
+        output = {}
+        tasks = self.task_set.all()
+        for item in STATUS_LIST:
+            output[item[0]] = tasks.filter(status=item[0]).count()
+        return output
+
 
 class Task(models.Model):
     label = models.CharField(max_length=256, blank=False)

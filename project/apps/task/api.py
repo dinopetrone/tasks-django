@@ -117,8 +117,8 @@ class IPCModelResource(ModelResource):
 
 
 class ProjectResource(IPCModelResource):
-    # users = fields.ToManyField('task.api.TaskUserResource', 'users', null=True)
     ipc_handler = ipc.notify_project_update
+    # tasks = fields.DictField(attribute='tasks')
 
     class Meta:
         queryset = Project.objects.all()
