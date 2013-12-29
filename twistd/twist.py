@@ -80,19 +80,22 @@ class TwistedRepConnection(ZmqREPConnection):
         self.reply(message_id, '')
 
 
-def initRep():
+def initIPC():
     method = 'bind'
     endpoint = 'ipc:///tmp/tasks_broker'
     zf = ZmqFactory()
     e = ZmqEndpoint(method, endpoint)
-    print('initRep')
+
     return TwistedRepConnection(zf, e)
 
 
-if __name__ == '__main__':
-    factory = SockJSFactory(Factory.forProtocol(TasksProtocol))
+def getFactory():
+    initIPC()
+    return SockJSFactory(Factory.forProtocol(TasksProtocol))
 
-    initRep()
+
+if __name__ == '__main__':
+    factory = getFactory()
 
     print('Starting Twisted Server')
     reactor.listenTCP(8888, factory)
