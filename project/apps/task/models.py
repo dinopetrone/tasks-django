@@ -117,6 +117,8 @@ class Task(models.Model):
             return self.assigned_to.email
         return ''
 
+    def __unicode__(self):
+        return self.label
 
 
 # @receiver(post_save, sender=Project)
