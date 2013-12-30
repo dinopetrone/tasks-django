@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-
+from django.forms.models import model_to_dict
 
 STATUS_LIST = (
                (0, 'backlog'),
@@ -114,3 +114,29 @@ class Task(models.Model):
     def __unicode__(self):
         return self.label
 
+    def created(self):
+        task_history = list(self.taskhistory_set.order_by('datetime')[:1])
+        if task_history:
+            task_history = task_history[0]
+            return {
+                "datetime":task_history.datetime,
+                "user_email":task_history.user.email
+            }
+        return {}
+
+    def last_edited(self):
+        task_history = list(self.taskhistory_set.order_by('datetime').reverse()[:1])
+        if task_history:
+            task_history = task_history[0]
+            return {
+                "datetime":task_history.datetime,
+                "user_email":task_history.user.email
+            }
+        return {}
+
+
+
+class TaskHistory(models.Model):
+    datetime = models.DateTimeField(auto_now=True)
+    task = models.ForeignKey(Task)
+    user = models.ForeignKey(TaskUser)
