@@ -237,7 +237,7 @@ class TaskResource(IPCModelResource):
 
     def obj_create(self, bundle, **kwargs):
         result = super(TaskResource, self) \
-            .obj_create( bundle, skip_errors=False, **kwargs)
+            .obj_create( bundle, **kwargs)
         task = bundle.obj
         task_history = TaskHistory()
         task_history.task = task
