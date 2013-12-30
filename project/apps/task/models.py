@@ -136,7 +136,6 @@ class Task(models.Model):
         return {}
 
 
-
 class TaskHistory(models.Model):
     datetime = models.DateTimeField(auto_now=True, db_index=True)
     task = models.ForeignKey(Task)
