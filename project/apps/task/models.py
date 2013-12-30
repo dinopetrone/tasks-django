@@ -1,17 +1,11 @@
-import json
 from django.utils import timezone
 from django.db import models
-from django.dispatch import receiver
-from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.forms.models import model_to_dict
 
-import zmq
 
 STATUS_LIST = (
                (0, 'backlog'),
                (1, 'todo'),
-               (2, 'accepted'),
                (3, 'in progress'),
                (4, 'completed'),
                (5, 'archived'),
@@ -120,37 +114,3 @@ class Task(models.Model):
     def __unicode__(self):
         return self.label
 
-
-# @receiver(post_save, sender=Project)
-# def notify_project_update(sender, instance, created, raw, **kwargs):
-#     if created:
-#         return
-#     dic = model_to_dict(instance)
-#     dic['organization_id'] = instance.organization.id
-#     dic['project_id'] = instance.id
-#     dic['type'] = 'project'
-#     del dic['users']
-#     model_json = json.dumps(dic)
-#     c = zmq.Context()
-#     s = c.socket(zmq.REQ)
-#     ipc = 'ipc:///tmp/tasks_broker'
-#     s.connect(ipc)
-#     s.send(model_json)
-#     s.recv()
-
-
-# @receiver(post_save, sender=Task)
-# def notify_task_update(sender, instance, created, raw, **kwargs):
-#     if created:
-#         return
-#     dic = model_to_dict(instance)
-#     dic['organization_id'] = instance.project.organization.id
-#     dic['project_id'] = instance.project.id
-#     dic['type'] = 'task'
-#     model_json = json.dumps(dic)
-#     c = zmq.Context()
-#     s = c.socket(zmq.REQ)
-#     ipc = 'ipc:///tmp/tasks_broker'
-#     s.connect(ipc)
-#     s.send(model_json)
-#     s.recv()
