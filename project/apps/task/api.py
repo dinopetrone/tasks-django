@@ -122,6 +122,7 @@ class ProjectResource(IPCModelResource):
 
     class Meta:
         queryset = Project.objects.all()
+        limit=0
         resource_name = 'project'
         serializer = Serializer(["json"])
         filtering = {
@@ -181,6 +182,7 @@ class TaskResource(IPCModelResource):
 
     class Meta:
         queryset = Task.objects.all()
+        limit=0
         resource_name = 'task'
         serializer = Serializer(["json"])
         filtering = {
