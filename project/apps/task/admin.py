@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
-from .models import TaskUser, Organization, Project, Task
+from .models import TaskUser, Organization, Project, Task, TaskHistory
 from .forms import TaskUserChangeForm, TaskUserCreationForm
 from . import ipc
 
@@ -49,13 +49,21 @@ class IPCModelAdmin(admin.ModelAdmin):
         # An action from the admin effectively has no token.
         ipc_handler(obj, None)
 
+class TaskHistoryInline(admin.TabularInline):
+    model = TaskHistory
+    readonly_fields = ('datetime', 'user')
+    extra = 0
 
 class TaskAdmin(IPCModelAdmin):
     ipc_handler = ipc.notify_task_update
+    inlines = [TaskHistoryInline]
 
 
 class ProjectAdmin(IPCModelAdmin):
     ipc_handler = ipc.notify_project_update
+
+
+
 
 admin.site.register(TaskUser, TaskUserAdmin)
 admin.site.register(Organization, admin.ModelAdmin)

@@ -9,7 +9,7 @@ from tastypie.authentication import Authentication
 from tastypie.http import HttpUnauthorized
 from tastypie.compat import User
 
-from task.models import Task, Project, TaskUser
+from task.models import Task, Project, TaskUser, TaskHistory
 from . import ipc
 
 class TokenAuthentication(Authentication):
@@ -122,6 +122,7 @@ class ProjectResource(IPCModelResource):
 
     class Meta:
         queryset = Project.objects.all()
+        limit=0
         resource_name = 'project'
         serializer = Serializer(["json"])
         filtering = {
@@ -174,13 +175,29 @@ class ProjectResource(IPCModelResource):
                 return data_dict
 
 
+class TaskHistoryResource(ModelResource):
+    class Meta:
+        queryset = TaskHistory.objects.all()
+        resource_name = 'taskhistory'
+        serializer = Serializer(["json"])
+        filtering = {
+            'id': ALL,
+            'status': ALL,
+            'assigned_to': ALL,
+            'users': ALL_WITH_RELATIONS,
+        }
+
 class TaskResource(IPCModelResource):
     project = fields.ForeignKey('task.api.ProjectResource', 'project', full=True, null=True)
     assigned_email = fields.CharField(attribute='assigned_email', null=True)
+    created = fields.DictField(attribute='created')
+    last_edited = fields.DictField(attribute='last_edited')
+
     ipc_handler = ipc.notify_task_update
 
     class Meta:
         queryset = Task.objects.all()
+        limit=0
         resource_name = 'task'
         serializer = Serializer(["json"])
         filtering = {
@@ -212,7 +229,21 @@ class TaskResource(IPCModelResource):
             task.save();
         ipc_handler = self.ipc_handler.__func__
         ipc_handler(task, bundle.request.token)
+        task_history = TaskHistory()
+        task_history.task = task
+        task_history.user = bundle.request.user
+        task_history.save()
         return bundle
+
+    def obj_create(self, bundle, **kwargs):
+        result = super(TaskResource, self) \
+            .obj_create( bundle, **kwargs)
+        task = bundle.obj
+        task_history = TaskHistory()
+        task_history.task = task
+        task_history.user = bundle.request.user
+        task_history.save()
+        return result
 
 
     def alter_detail_data_to_serialize(self, request, data):

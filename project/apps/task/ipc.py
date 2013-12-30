@@ -35,6 +35,7 @@ def notify_task_update(instance, token=None, action='update'):
     dic['token'] = token
     dic['id'] = instance.id
     dic['action'] = action
+    dic['backlog_order'] = instance.backlog_order
     data = json.dumps(dic)
     ipc_send(data)
 

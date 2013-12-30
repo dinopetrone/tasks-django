@@ -1,17 +1,11 @@
-import json
 from django.utils import timezone
 from django.db import models
-from django.dispatch import receiver
-from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.forms.models import model_to_dict
-
-import zmq
 
 STATUS_LIST = (
                (0, 'backlog'),
                (1, 'todo'),
-               (2, 'accepted'),
                (3, 'in progress'),
                (4, 'completed'),
                (5, 'archived'),
@@ -112,43 +106,38 @@ class Task(models.Model):
     loe = models.IntegerField(choices=LOE, default=0)
     task_type = models.IntegerField(choices=TYPE, default=0)
     assigned_to = models.ForeignKey(TaskUser, blank=True, null=True)
+    backlog_order = models.IntegerField(default=0)
+
     def assigned_email(self):
         if self.assigned_to:
             return self.assigned_to.email
         return ''
 
+    def __unicode__(self):
+        return self.label
+
+    def created(self):
+        task_history = list(self.taskhistory_set.order_by('datetime')[:1])
+        if task_history:
+            task_history = task_history[0]
+            return {
+                "datetime":task_history.datetime,
+                "user_email":task_history.user.email
+            }
+        return {}
+
+    def last_edited(self):
+        task_history = list(self.taskhistory_set.order_by('datetime').reverse()[:1])
+        if task_history:
+            task_history = task_history[0]
+            return {
+                "datetime":task_history.datetime,
+                "user_email":task_history.user.email
+            }
+        return {}
 
 
-# @receiver(post_save, sender=Project)
-# def notify_project_update(sender, instance, created, raw, **kwargs):
-#     if created:
-#         return
-#     dic = model_to_dict(instance)
-#     dic['organization_id'] = instance.organization.id
-#     dic['project_id'] = instance.id
-#     dic['type'] = 'project'
-#     del dic['users']
-#     model_json = json.dumps(dic)
-#     c = zmq.Context()
-#     s = c.socket(zmq.REQ)
-#     ipc = 'ipc:///tmp/tasks_broker'
-#     s.connect(ipc)
-#     s.send(model_json)
-#     s.recv()
-
-
-# @receiver(post_save, sender=Task)
-# def notify_task_update(sender, instance, created, raw, **kwargs):
-#     if created:
-#         return
-#     dic = model_to_dict(instance)
-#     dic['organization_id'] = instance.project.organization.id
-#     dic['project_id'] = instance.project.id
-#     dic['type'] = 'task'
-#     model_json = json.dumps(dic)
-#     c = zmq.Context()
-#     s = c.socket(zmq.REQ)
-#     ipc = 'ipc:///tmp/tasks_broker'
-#     s.connect(ipc)
-#     s.send(model_json)
-#     s.recv()
+class TaskHistory(models.Model):
+    datetime = models.DateTimeField(auto_now=True, db_index=True)
+    task = models.ForeignKey(Task)
+    user = models.ForeignKey(TaskUser)
