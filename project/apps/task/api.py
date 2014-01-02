@@ -215,9 +215,8 @@ class TaskResource(IPCModelResource):
         authentication = TokenAuthentication()
         authorization = Authorization()
 
-
-
     def obj_update(self, bundle, **kwargs):
+        print('update')
         bundle.data['assigned_email'] = bundle.request.user.email
         bundle = super(ModelResource, self).obj_update( bundle, **kwargs)
         task = bundle.obj
