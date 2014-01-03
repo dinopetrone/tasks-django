@@ -61,6 +61,7 @@ class ResponseObject(object):
 class OrganizationTaskResource(ModelResource):
     created = fields.DictField(attribute='created')
     last_edited = fields.DictField(attribute='last_edited')
+    project_id = fields.IntegerField(attribute='project_id')
 
     class Meta:
         queryset = Task.objects.all()
