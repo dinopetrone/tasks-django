@@ -240,7 +240,14 @@ class TaskHistoryResource(ModelResource):
 
 
 class TaskResource(IPCModelResource):
-    project = fields.ForeignKey('task.api.ProjectResource', 'project', full=True, null=True)
+    project = fields.ForeignKey(
+        'task.api.ProjectResource',
+        'project', full=True, null=True)
+
+    assigned_to = fields.ForeignKey(
+        'task.api.TaskUserResource',
+        'assigned_to', full=True, null=True)
+
     assigned_email = fields.CharField(attribute='assigned_email', null=True)
     created = fields.DictField(attribute='created')
     last_edited = fields.DictField(attribute='last_edited')
@@ -248,7 +255,7 @@ class TaskResource(IPCModelResource):
     ipc_handler = ipc.notify_task_update
 
     class Meta:
-        queryset = Task.objects.all()
+        queryset = Task.objects.select_related('project', 'assigned_to').all()
         limit = 0
         resource_name = 'task'
         serializer = Serializer(["json"])
