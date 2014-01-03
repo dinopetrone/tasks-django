@@ -12,6 +12,7 @@ from tastypie.compat import User
 from task.models import Task, Project, TaskUser, TaskHistory
 from . import ipc
 
+
 class TokenAuthentication(Authentication):
 
     def get_identifier(self, request):
@@ -56,12 +57,14 @@ class ResponseObject(object):
     def to_dict(self):
         return self._data
 
+
 class OrganizationTaskResource(ModelResource):
     created = fields.DictField(attribute='created')
     last_edited = fields.DictField(attribute='last_edited')
+
     class Meta:
         queryset = Task.objects.all()
-        limit=0
+        limit = 0
         resource_name = 'task'
         serializer = Serializer(["json"])
         always_return_data = True
@@ -72,12 +75,12 @@ class OrganizationTaskResource(ModelResource):
 class OrganizationResource(ModelResource):
     tasks = fields.ToManyField('task.api.OrganizationTaskResource',
         lambda bundle: bundle.obj.task_set.filter(status=3),
-        null=True,
-        full=True
-    )
+        null = True,
+        full = True)
+
     class Meta:
         queryset = TaskUser.objects.all()
-        limit=0
+        limit = 0
         resource_name = 'organization'
         serializer = Serializer(["json"])
         include_resource_uri = False
@@ -95,8 +98,6 @@ class OrganizationResource(ModelResource):
         authorization = Authorization()
 
 
-
-
 class TaskUserDetailResource(ModelResource):
     first_name = fields.CharField(attribute='first_name')
     last_name = fields.CharField(attribute='last_name')
@@ -112,7 +113,6 @@ class TaskUserDetailResource(ModelResource):
 
     def obj_get(self, bundle, **kwargs):
         return bundle.request.user
-
 
 
 class TaskUserResource(ModelResource):
@@ -155,14 +155,13 @@ class IPCModelResource(ModelResource):
         return result
 
 
-
 class ProjectResource(IPCModelResource):
     ipc_handler = ipc.notify_project_update
     tasks = fields.DictField(attribute='tasks')
 
     class Meta:
         queryset = Project.objects.all()
-        limit=0
+        limit = 0
         resource_name = 'project'
         serializer = Serializer(["json"])
         filtering = {
@@ -185,7 +184,6 @@ class ProjectResource(IPCModelResource):
         project.save()
         return bundle
 
-
     def obj_update(self, bundle, **kwargs):
         bundle = super(self.__class__, self).obj_update( bundle, **kwargs)
         project = bundle.obj
@@ -193,13 +191,11 @@ class ProjectResource(IPCModelResource):
             project.users.add(bundle.request.user)
         return bundle
 
-
     def obj_delete(self, bundle, pk):
         # we dont want to delete the project,
         # just remove the user from the project
         project = Project.objects.get(id=pk)
         project.users.remove(bundle.request.user)
-
 
     def get_object_list(self, request):
         objects = self._meta.queryset._clone()
@@ -209,7 +205,7 @@ class ProjectResource(IPCModelResource):
             return objects.filter(users=request.user)
 
     def alter_list_data_to_serialize(self, request, data_dict):
-        if isinstance(data_dict,dict):
+        if isinstance(data_dict, dict):
             if 'meta' in data_dict:
                 del(data_dict['meta'])
                 return data_dict
@@ -227,6 +223,7 @@ class TaskHistoryResource(ModelResource):
             'users': ALL_WITH_RELATIONS,
         }
 
+
 class TaskResource(IPCModelResource):
     project = fields.ForeignKey('task.api.ProjectResource', 'project', full=True, null=True)
     assigned_email = fields.CharField(attribute='assigned_email', null=True)
@@ -237,7 +234,7 @@ class TaskResource(IPCModelResource):
 
     class Meta:
         queryset = Task.objects.all()
-        limit=0
+        limit = 0
         resource_name = 'task'
         serializer = Serializer(["json"])
         filtering = {
@@ -257,14 +254,17 @@ class TaskResource(IPCModelResource):
 
     def obj_update(self, bundle, **kwargs):
         bundle.data['assigned_email'] = bundle.request.user.email
-        bundle = super(ModelResource, self).obj_update( bundle, **kwargs)
+        bundle = super(ModelResource, self).obj_update(bundle, **kwargs)
         task = bundle.obj
+
         if task.status == 3:
             task.assigned_to = bundle.request.user
             task.save()
-        if task.status <=2:
+
+        if task.status <= 2:
             task.assigned_to = None
-            task.save();
+            task.save()
+
         ipc_handler = self.ipc_handler.__func__
         ipc_handler(task, bundle.request.token)
         task_history = TaskHistory()
@@ -283,14 +283,13 @@ class TaskResource(IPCModelResource):
         task_history.save()
         return result
 
-
     def alter_detail_data_to_serialize(self, request, data):
         task = data.data
         task['project'] = task['project'].data['resource_uri']
         return data
 
     def alter_list_data_to_serialize(self, request, data_dict):
-        if isinstance(data_dict,dict):
+        if isinstance(data_dict, dict):
             if 'meta' in data_dict:
                 del(data_dict['meta'])
                 return data_dict
@@ -299,9 +298,6 @@ class TaskResource(IPCModelResource):
             task = obj.data
             task['project'] = task['project'].data['resource_uri']
         return data_dict
-
-
-
 
 
 class TokenResource(Resource):
