@@ -235,7 +235,7 @@ class TaskResource(IPCModelResource):
     ipc_handler = ipc.notify_task_update
 
     class Meta:
-        queryset = Task.objects.all()
+        queryset = Task.objects.select_related('project').all()
         limit = 0
         resource_name = 'task'
         serializer = Serializer(["json"])
