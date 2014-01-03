@@ -120,9 +120,22 @@ class TaskUserDetailResource(ModelResource):
 class TaskUserResource(ModelResource):
     class Meta:
         queryset = TaskUser.objects.all()
-        filtering = {
-            'id': ALL,
-        }
+        include_resource_uri = False
+        resource_name = 'assignee'
+        authentication = TokenAuthentication()
+        authorization = Authorization()
+        serializer = Serializer(["json"])
+        limit = 0
+        detail_allowed_methods = []
+        list_allowed_methods = ['get']
+        fields = ['email', 'id']
+
+    def obj_get_list(self, bundle, **kwargs):
+        result = super(TaskUserResource, self) \
+            .obj_get_list(bundle, **kwargs)
+        result = result.filter(organization=bundle.request.user.organization)
+        return result
+
 
 
 class IPCModelResource(ModelResource):
@@ -159,7 +172,7 @@ class IPCModelResource(ModelResource):
 
 class ProjectResource(IPCModelResource):
     ipc_handler = ipc.notify_project_update
-    tasks = fields.DictField(attribute='tasks')
+    # tasks = fields.DictField(attribute='tasks')
 
     class Meta:
         queryset = Project.objects.all()
