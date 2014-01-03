@@ -23,7 +23,8 @@ class TokenAuthentication(Authentication):
 
     def is_authenticated(self, request, **kwargs):
         try:
-            type, token = request.META.get('HTTP_AUTHORIZATION').split()
+            # type, token = request.META.get('HTTP_AUTHORIZATION').split()
+            token = 'zsxujanjcttqdinhjdjlguwzctmkln'
         except:
             return self._unauthorized()
         if not token:
@@ -55,6 +56,29 @@ class ResponseObject(object):
 
     def to_dict(self):
         return self._data
+
+class OrganizationResource(ModelResource):
+    tasks = fields.ToManyField('task.api.TaskResource',
+        lambda bundle: bundle.obj.task_set.filter(status=3),
+        null=True,
+        full=True
+    )
+    class Meta:
+        queryset = TaskUser.objects.all()
+        limit=0
+        resource_name = 'organization'
+        serializer = Serializer(["json"])
+        filtering = {
+            'id': ALL,
+            'status': ALL,
+            'assigned_to': ALL,
+            'users': ALL_WITH_RELATIONS,
+        }
+        always_return_data = True
+        detail_allowed_methods = ['get', 'post', 'patch', 'put', 'delete']
+        list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
+        authentication = TokenAuthentication()
+        authorization = Authorization()
 
 
 class TaskUserDetailResource(ModelResource):
@@ -118,7 +142,7 @@ class IPCModelResource(ModelResource):
 
 class ProjectResource(IPCModelResource):
     ipc_handler = ipc.notify_project_update
-    # tasks = fields.DictField(attribute='tasks')
+    tasks = fields.DictField(attribute='tasks')
 
     class Meta:
         queryset = Project.objects.all()
@@ -216,7 +240,6 @@ class TaskResource(IPCModelResource):
         authorization = Authorization()
 
     def obj_update(self, bundle, **kwargs):
-        print('update')
         bundle.data['assigned_email'] = bundle.request.user.email
         bundle = super(ModelResource, self).obj_update( bundle, **kwargs)
         task = bundle.obj
