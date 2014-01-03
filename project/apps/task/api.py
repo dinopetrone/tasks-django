@@ -23,8 +23,7 @@ class TokenAuthentication(Authentication):
 
     def is_authenticated(self, request, **kwargs):
         try:
-            # type, token = request.META.get('HTTP_AUTHORIZATION').split()
-            token = 'zsxujanjcttqdinhjdjlguwzctmkln'
+            type, token = request.META.get('HTTP_AUTHORIZATION').split()
         except:
             return self._unauthorized()
         if not token:
@@ -57,8 +56,21 @@ class ResponseObject(object):
     def to_dict(self):
         return self._data
 
+class OrganizationTaskResource(ModelResource):
+    created = fields.DictField(attribute='created')
+    last_edited = fields.DictField(attribute='last_edited')
+    class Meta:
+        queryset = Task.objects.all()
+        limit=0
+        resource_name = 'task'
+        serializer = Serializer(["json"])
+        always_return_data = True
+        excludes = ['backlog_order', 'id']
+        include_resource_uri = False
+
+
 class OrganizationResource(ModelResource):
-    tasks = fields.ToManyField('task.api.TaskResource',
+    tasks = fields.ToManyField('task.api.OrganizationTaskResource',
         lambda bundle: bundle.obj.task_set.filter(status=3),
         null=True,
         full=True
@@ -68,17 +80,21 @@ class OrganizationResource(ModelResource):
         limit=0
         resource_name = 'organization'
         serializer = Serializer(["json"])
+        include_resource_uri = False
         filtering = {
             'id': ALL,
             'status': ALL,
             'assigned_to': ALL,
             'users': ALL_WITH_RELATIONS,
         }
+        fields = ['email', 'tasks']
         always_return_data = True
         detail_allowed_methods = ['get', 'post', 'patch', 'put', 'delete']
         list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
         authentication = TokenAuthentication()
         authorization = Authorization()
+
+
 
 
 class TaskUserDetailResource(ModelResource):
