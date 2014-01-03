@@ -243,7 +243,7 @@ class TaskResource(IPCModelResource):
 
     class Meta:
         queryset = Task.objects.select_related('project', 'assigned_to').all()
-        limit = 0
+        limit = 20
         resource_name = 'task'
         serializer = Serializer(["json"])
         filtering = {
