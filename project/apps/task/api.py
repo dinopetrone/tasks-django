@@ -248,7 +248,6 @@ class TaskResource(IPCModelResource):
         'task.api.TaskUserResource',
         'assigned_to', full=True, null=True)
 
-    assigned_email = fields.CharField(attribute='assigned_email', null=True)
     created = fields.DictField(attribute='created')
     last_edited = fields.DictField(attribute='last_edited')
 
@@ -275,16 +274,11 @@ class TaskResource(IPCModelResource):
         authorization = Authorization()
 
     def alter_deserialized_detail_data(self, request, data):
-
-        if data.get('data', False) and  type(data['assigned_to']) == type({}):
+        if data.get('assigned_to', False) and not isinstance(data['assigned_to'], unicode):
             data['assigned_to'] = data['assigned_to']['resource_uri']
-
-        # if data['assigned_to'].get('resource_uri', False):
-        #     data['assigned_to'] = data['assigned_to']['resource_uri']
         return super(IPCModelResource, self).alter_deserialized_detail_data(request, data)
 
     def obj_update(self, bundle, **kwargs):
-        bundle.data['assigned_email'] = bundle.request.user.email
         bundle = super(ModelResource, self).obj_update(bundle, **kwargs)
         task = bundle.obj
 

@@ -28,9 +28,9 @@ def notify_task_update(instance, token=None, action='update'):
     dic['organization_id'] = instance.project.organization.id
     dic['project_id'] = instance.project.id
     dic['project_label'] = instance.project.label
-    dic['assigned_email'] = ''
+    dic['assigned_to'] = {}
     if instance.assigned_to:
-        dic['assigned_email'] = instance.assigned_to.email
+        dic['assigned_to']['email'] = instance.assigned_to.email
     dic['type'] = 'task'
     dic['token'] = token
     dic['id'] = instance.id
