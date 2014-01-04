@@ -276,7 +276,7 @@ class TaskResource(IPCModelResource):
 
     def alter_deserialized_detail_data(self, request, data):
 
-        if type(data['assigned_to']) == type({}):
+        if data.get('data', False) and  type(data['assigned_to']) == type({}):
             data['assigned_to'] = data['assigned_to']['resource_uri']
 
         # if data['assigned_to'].get('resource_uri', False):
