@@ -417,6 +417,8 @@ class TaskResource(IPCModelResource):
     def get_object_list(self, request):
         status = request.GET.get('status')
 
+        # Clark was waking up, so I went cheap with request.method
+        # here.
         if status or request.method != 'GET':
             return super(TaskResource, self).get_object_list(request)
 
