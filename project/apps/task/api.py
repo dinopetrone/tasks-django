@@ -8,9 +8,31 @@ from tastypie.authorization import Authorization
 from tastypie.authentication import Authentication
 from tastypie.http import HttpUnauthorized
 from tastypie.compat import User
+from tastypie.paginator import Paginator
 
 from task.models import Task, Project, TaskUser, TaskHistory
 from . import ipc
+
+
+class TaskPaginator(Paginator):
+    def get_count(self):
+        return 0
+
+    def page(self):
+        max_id = int(self.request_data.get('max_id', 0))
+
+        objects = self.objects
+        limit = self.get_limit()
+
+        meta = {}
+
+        if max_id:
+            objects = objects.filter(id__lt=max_id)
+
+        return {
+            self.collection_name: objects[:limit],
+            'meta': meta,
+        }
 
 
 class TokenAuthentication(Authentication):
@@ -276,6 +298,7 @@ class TaskResource(IPCModelResource):
         list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
         authentication = TokenAuthentication()
         authorization = Authorization()
+        paginator_class = TaskPaginator
 
     def apply_sorting(self, obj_list, options=None):
         status = options.get('status')
