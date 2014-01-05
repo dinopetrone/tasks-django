@@ -27,7 +27,7 @@ class TaskPaginator(Paginator):
         # no status means we are doing the initial Active load
         # of all 3 swimlanes
         if status is None:
-            limit = 45
+            limit = 60
 
         elif status == '0':
             limit = self.max_limit
@@ -298,7 +298,7 @@ class TaskResource(IPCModelResource):
                    .objects \
                    .select_related('project', 'assigned_to') \
                    .all()
-        limit = 15
+        limit = 20
         resource_name = 'task'
         serializer = Serializer(["json"])
         filtering = {
