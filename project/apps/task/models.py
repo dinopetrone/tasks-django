@@ -109,11 +109,6 @@ class Task(models.Model):
     backlog_order = models.IntegerField(default=0)
     completed_on = models.DateTimeField(null=True, blank=True)
 
-    def assigned_email(self):
-        if self.assigned_to:
-            return self.assigned_to.email
-        return ''
-
     def __unicode__(self):
         return self.label
 

@@ -120,7 +120,7 @@ class TaskUserDetailResource(ModelResource):
 class TaskUserResource(ModelResource):
     class Meta:
         queryset = TaskUser.objects.all()
-        include_resource_uri = False
+        # include_resource_uri = False
         resource_name = 'assignee'
         authentication = TokenAuthentication()
         authorization = Authorization()
@@ -248,7 +248,6 @@ class TaskResource(IPCModelResource):
         'task.api.TaskUserResource',
         'assigned_to', full=True, null=True)
 
-    assigned_email = fields.CharField(attribute='assigned_email', null=True)
     created = fields.DictField(attribute='created')
     last_edited = fields.DictField(attribute='last_edited')
 
@@ -274,17 +273,17 @@ class TaskResource(IPCModelResource):
         authentication = TokenAuthentication()
         authorization = Authorization()
 
+    def alter_deserialized_detail_data(self, request, data):
+        if data.get('assigned_to', False) and not isinstance(data['assigned_to'], unicode):
+            data['assigned_to'] = data['assigned_to']['resource_uri']
+        return super(IPCModelResource, self).alter_deserialized_detail_data(request, data)
+
     def obj_update(self, bundle, **kwargs):
-        bundle.data['assigned_email'] = bundle.request.user.email
         bundle = super(ModelResource, self).obj_update(bundle, **kwargs)
         task = bundle.obj
 
-        if task.status == 3:
+        if task.status == 3 and task.assigned_to == None:
             task.assigned_to = bundle.request.user
-            task.save()
-
-        if task.status <= 2:
-            task.assigned_to = None
             task.save()
 
         ipc_handler = self.ipc_handler.__func__
