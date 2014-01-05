@@ -1,6 +1,7 @@
 import string
 import random
 from datetime import datetime
+from itertools import chain
 
 from tastypie.resources import ModelResource, Resource, ALL, ALL_WITH_RELATIONS
 from tastypie import fields
@@ -23,7 +24,12 @@ class TaskPaginator(Paginator):
         limit = super(TaskPaginator, self).get_limit()
         status = self.request_data.get('status')
 
-        if status == '0':
+        # no status means we are doing the initial Active load
+        # of all 3 swimlanes
+        if status is None:
+            limit = 60
+
+        elif status == '0':
             limit = self.max_limit
 
         return limit
@@ -312,6 +318,22 @@ class TaskResource(IPCModelResource):
         authorization = Authorization()
         paginator_class = TaskPaginator
 
+    def apply_filters(self, request, applicable_filters):
+        """
+        An ORM-specific implementation of ``apply_filters``.
+
+        The default simply applies the ``applicable_filters`` as ``**kwargs``,
+        but should make it possible to do more advanced things.
+        """
+        objects = self.get_object_list(request)
+
+        try:
+            objects = objects.filter(**applicable_filters)
+        except AttributeError:
+            pass
+
+        return objects
+
     def apply_sorting(self, obj_list, options=None):
         status = options.get('status')
 
@@ -328,7 +350,10 @@ class TaskResource(IPCModelResource):
         else:  # everythign else
             fields = ('-id',)
 
-        return obj_list.order_by(*fields)
+        try:
+            return obj_list.order_by(*fields)
+        except AttributeError:
+            return obj_list
 
     def alter_deserialized_detail_data(self, request, data):
         if data.get('assigned_to', False) and not isinstance(data['assigned_to'], unicode):
@@ -388,6 +413,36 @@ class TaskResource(IPCModelResource):
             task = obj.data
             task['project'] = task['project'].data['resource_uri']
         return data_dict
+
+    def get_object_list(self, request):
+        status = request.GET.get('status')
+        if status:
+            return super(TaskResource, self).get_object_list(request)
+
+        project_id = request.GET.get('project__id')
+
+        # could probably just return a list and
+        # handle applying the order and filters thouugh
+        # tasty pie's notmal channels.
+        #
+        # would need to update self.apply_filters and
+        # self.apply_sorting if we do that. They currently
+        # handle the attribute error when their desired
+        # property is not present and just forward this
+        # list on.
+        todo = self._meta.queryset._clone() \
+            .filter(status=1, project__id=project_id) \
+            .order_by('-id')[:20]
+
+        in_progress = self._meta.queryset._clone() \
+            .filter(status=3, project__id=project_id) \
+            .order_by('-id')[:20]
+
+        completed = self._meta.queryset._clone() \
+            .filter(status=4, project__id=project_id) \
+            .order_by('-id')[:20]
+
+        return list(chain(todo, in_progress, completed))
 
 
 class TokenResource(Resource):
