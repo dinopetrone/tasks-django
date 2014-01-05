@@ -254,8 +254,11 @@ class TaskResource(IPCModelResource):
     ipc_handler = ipc.notify_task_update
 
     class Meta:
-        queryset = Task.objects.select_related('project', 'assigned_to').all()
-        limit = 0
+        queryset = Task \
+                   .objects \
+                   .select_related('project', 'assigned_to') \
+                   .all()
+        limit = 20
         resource_name = 'task'
         serializer = Serializer(["json"])
         filtering = {
@@ -273,6 +276,22 @@ class TaskResource(IPCModelResource):
         list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
         authentication = TokenAuthentication()
         authorization = Authorization()
+
+    def apply_sorting(self, obj_list, options=None):
+        status = options.get('status')
+
+        if status == '0':
+            # this is a problem.
+            # you may not have all of the backlog
+            # loaded, but you change the order of 1
+            # we need a way to describe that or
+            # backlog loads more tasks than the other guys
+
+            fields = ('backlog_order', '-id')
+        else:
+            fields = ('-id',)
+
+        return obj_list.order_by(*fields)
 
     def alter_deserialized_detail_data(self, request, data):
         if data.get('assigned_to', False) and not isinstance(data['assigned_to'], unicode):

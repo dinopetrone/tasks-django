@@ -53,8 +53,10 @@ CACHES = {
 
 ########## TOOLBAR CONFIGURATION
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
+DEVSERVER_DEFAULT_ADDR = '0.0.0.0'
 INSTALLED_APPS += (
     'debug_toolbar',
+    'devserver',
     'storages',
 )
 
