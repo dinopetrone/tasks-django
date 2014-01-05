@@ -1,7 +1,7 @@
 import json
 import zmq
 from django.forms.models import model_to_dict
-
+from django.utils.dateformat import format
 
 IPC_ADDRESS = 'ipc:///tmp/tasks_broker'
 
@@ -36,6 +36,10 @@ def notify_task_update(instance, token=None, action='update'):
     dic['id'] = instance.id
     dic['action'] = action
     dic['backlog_order'] = instance.backlog_order
+
+    if(instance.completed_on):
+        dic['completed_on'] = format(instance.completed_on, 'U')
+
     data = json.dumps(dic)
     ipc_send(data)
 

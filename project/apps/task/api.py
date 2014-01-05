@@ -1,5 +1,6 @@
 import string
 import random
+from datetime import datetime
 
 from tastypie.resources import ModelResource, Resource, ALL, ALL_WITH_RELATIONS
 from tastypie import fields
@@ -168,7 +169,6 @@ class TaskUserResource(ModelResource):
         return result
 
 
-
 class IPCModelResource(ModelResource):
     ipc_handler = None
 
@@ -187,14 +187,16 @@ class IPCModelResource(ModelResource):
 
     def obj_create(self, bundle, **kwargs):
         result = super(IPCModelResource, self) \
-            .obj_create( bundle, skip_errors=False, **kwargs)
+                .obj_create( bundle, skip_errors=False, **kwargs)
+
         ipc_handler = self.ipc_handler.__func__
         ipc_handler(bundle.obj, bundle.request.token, action='create')
         return result
 
     def obj_delete(self, bundle, **kwargs):
         result = super(IPCModelResource, self) \
-            .obj_delete( bundle, **kwargs)
+                .obj_delete( bundle, **kwargs)
+
         ipc_handler = self.ipc_handler.__func__
         bundle.obj.id = kwargs['pk']
         ipc_handler(bundle.obj, bundle.request.token, action='delete')
@@ -223,7 +225,7 @@ class ProjectResource(IPCModelResource):
         authorization = Authorization()
 
     def obj_create(self, *args, **kwargs):
-        bundle = super(ModelResource, self).obj_create( *args, **kwargs)
+        bundle = super(ModelResource, self).obj_create(*args, **kwargs)
         project = bundle.obj
         project.organization = bundle.request.user.organization
         project.users.add(bundle.request.user)
@@ -231,7 +233,7 @@ class ProjectResource(IPCModelResource):
         return bundle
 
     def obj_update(self, bundle, **kwargs):
-        bundle = super(self.__class__, self).obj_update( bundle, **kwargs)
+        bundle = super(self.__class__, self).obj_update(bundle, **kwargs)
         project = bundle.obj
         if bundle.data.get('user', False):
             project.users.add(bundle.request.user)
@@ -246,7 +248,8 @@ class ProjectResource(IPCModelResource):
     def get_object_list(self, request):
         objects = self._meta.queryset._clone()
         if request.GET.get('all', False):
-            return objects.filter(organization=request.user.organization).exclude(users=request.user)
+            return objects.filter(organization=request.user.organization) \
+                          .exclude(users=request.user)
         else:
             return objects.filter(users=request.user)
 
@@ -312,7 +315,7 @@ class TaskResource(IPCModelResource):
     def apply_sorting(self, obj_list, options=None):
         status = options.get('status')
 
-        if status == '0':
+        if status == '0':  # backlog
             # this is a problem.
             # you may not have all of the backlog
             # loaded, but you change the order of 1
@@ -320,7 +323,9 @@ class TaskResource(IPCModelResource):
             # backlog loads more tasks than the other guys
 
             fields = ('backlog_order',)
-        else:
+        elif status == '5':  # archived
+            fields = ('-completed_on',)
+        else:  # everythign else
             fields = ('-id',)
 
         return obj_list.order_by(*fields)
@@ -334,8 +339,20 @@ class TaskResource(IPCModelResource):
         bundle = super(ModelResource, self).obj_update(bundle, **kwargs)
         task = bundle.obj
 
-        if task.status == 3 and task.assigned_to == None:
+        # TODO rework this sequence so we only call save() once
+        if task.status == 3 and task.assigned_to is None:
             task.assigned_to = bundle.request.user
+            task.save()
+
+        if task.status == 4:  # moving from
+            task.completed_on = datetime.utcnow()
+            task.save()
+        elif task.status == 5:
+            if not task.completed_on:
+                task.completed_on = datetime.utcnow()
+                task.save()
+        else:
+            task.completed_on = None
             task.save()
 
         ipc_handler = self.ipc_handler.__func__
