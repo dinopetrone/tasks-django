@@ -259,14 +259,15 @@ class TaskResource(IPCModelResource):
         resource_name = 'task'
         serializer = Serializer(["json"])
         filtering = {
-            'label': ALL,
-            'description': ALL,
+            #'label': ALL,
+            #'description': ALL,
             'project': ALL_WITH_RELATIONS,
             'status': ALL,
-            'loe': ALL,
-            'task_type': ALL,
-            'assigned_to': ALL
+            #'loe': ALL,
+            #'task_type': ALL,
+            #'assigned_to': ALL
         }
+
         always_return_data = True
         detail_allowed_methods = ['get', 'post', 'patch', 'put', 'delete']
         list_allowed_methods = ['get', 'patch', 'post', 'put', 'delete']
