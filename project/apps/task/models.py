@@ -107,6 +107,7 @@ class Task(models.Model):
     task_type = models.IntegerField(choices=TYPE, default=0)
     assigned_to = models.ForeignKey(TaskUser, blank=True, null=True)
     backlog_order = models.IntegerField(default=0)
+    completed_on = models.DateTimeField(null=True, blank=True)
 
     def assigned_email(self):
         if self.assigned_to:
