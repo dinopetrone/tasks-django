@@ -323,7 +323,7 @@ class TaskResource(IPCModelResource):
             # backlog loads more tasks than the other guys
 
             fields = ('backlog_order',)
-        elif status == '5' or status == '4':  # archived
+        elif status == '5':  # archived
             fields = ('-completed_on',)
         else:  # everythign else
             fields = ('-id',)
