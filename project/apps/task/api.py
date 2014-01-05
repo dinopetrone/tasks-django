@@ -248,8 +248,8 @@ class TaskResource(IPCModelResource):
         'task.api.TaskUserResource',
         'assigned_to', full=True, null=True)
 
-    created = fields.DictField(attribute='created')
-    last_edited = fields.DictField(attribute='last_edited')
+    #created = fields.DictField(attribute='created')
+    #last_edited = fields.DictField(attribute='last_edited')
 
     ipc_handler = ipc.notify_task_update
 
