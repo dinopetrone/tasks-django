@@ -18,6 +18,15 @@ class TaskPaginator(Paginator):
     def get_count(self):
         return 0
 
+    def get_limit(self):
+        limit = super(TaskPaginator, self).get_limit()
+        status = self.request_data.get('status')
+
+        if status == '0':
+            limit = self.max_limit
+
+        return limit
+
     def page(self):
         max_id = int(self.request_data.get('max_id', 0))
 
@@ -310,7 +319,7 @@ class TaskResource(IPCModelResource):
             # we need a way to describe that or
             # backlog loads more tasks than the other guys
 
-            fields = ('backlog_order', '-id')
+            fields = ('backlog_order',)
         else:
             fields = ('-id',)
 
