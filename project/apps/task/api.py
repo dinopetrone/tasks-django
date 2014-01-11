@@ -255,9 +255,9 @@ class ProjectResource(IPCModelResource):
         objects = self._meta.queryset._clone()
         if request.GET.get('all', False):
             return objects.filter(organization=request.user.organization) \
-                          .exclude(users=request.user)
+                          .exclude(users=request.user).order_by('label')
         else:
-            return objects.filter(users=request.user)
+            return objects.filter(users=request.user).order_by('label')
 
     def alter_list_data_to_serialize(self, request, data_dict):
         if isinstance(data_dict, dict):
