@@ -56,7 +56,6 @@ CACHES = {
 DEVSERVER_DEFAULT_ADDR = '0.0.0.0'
 INSTALLED_APPS += (
     'debug_toolbar',
-    'devserver',
     'storages',
 )
 
